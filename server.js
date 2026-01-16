@@ -1887,50 +1887,17 @@ app.get('/api/scanner/script', async (req, res) => {
         updateUser(user.id, updates);
     }
     
-    // Fetch JOINER script from Pastebin (obfuscated, can be updated without redeploy)
-    const JOINER_PASTEBIN = 'https://pastebin.com/raw/fKTCNFnw';
+    // Serve JOINER script from local file (stored in server folder for security)
+    const joinerPath = path.join(__dirname, 'joiner.lua');
     
     try {
-        const https = require('https');
-        
-        https.get(JOINER_PASTEBIN, (response) => {
-            // Handle redirects
-            if (response.statusCode === 301 || response.statusCode === 302) {
-                https.get(response.headers.location, (redirectRes) => {
-                    let script = '';
-                    redirectRes.on('data', chunk => script += chunk);
-                    redirectRes.on('end', () => {
-                        res.setHeader('Content-Type', 'text/plain');
-                        res.send(script);
-                        console.log(`[Joiner] Script served to user: ${user.discord_username} (Roblox: ${roblox_username || 'N/A'})`);
-                    });
-                }).on('error', (err) => {
-                    console.error('[Joiner] Redirect fetch error:', err);
-                    res.status(500).send('-- ERROR: Server error loading script.');
-                });
-                return;
-            }
-            
-            if (response.statusCode !== 200) {
-                console.error('[Joiner] Pastebin returned:', response.statusCode);
-                res.status(500).send('-- ERROR: Script source unavailable.');
-                return;
-            }
-            
-            let script = '';
-            response.on('data', chunk => script += chunk);
-            response.on('end', () => {
-                res.setHeader('Content-Type', 'text/plain');
-                res.send(script);
-                console.log(`[Joiner] Script served to user: ${user.discord_username} (Roblox: ${roblox_username || 'N/A'})`);
-            });
-        }).on('error', (err) => {
-            console.error('[Joiner] Failed to fetch from Pastebin:', err);
-            res.status(500).send('-- ERROR: Server error loading script.');
-        });
+        const script = fs.readFileSync(joinerPath, 'utf8');
+        res.setHeader('Content-Type', 'text/plain');
+        res.send(script);
+        console.log(`[Joiner] Script served to user: ${user.discord_username} (Roblox: ${roblox_username || 'N/A'})`);
     } catch (err) {
-        console.error('[Joiner] Failed to fetch script from Pastebin:', err);
-        res.status(500).send('-- ERROR: Server error loading script. Try again later.');
+        console.error('[Joiner] Failed to read script:', err);
+        res.status(500).send('-- ERROR: Server error loading script.');
     }
 });
 
