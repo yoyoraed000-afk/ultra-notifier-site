@@ -1757,6 +1757,79 @@ app.post('/api/joiner/servers', (req, res) => {
 });
 
 // ============================================================
+// ESP SYSTEM - Track active Ultra users for in-game ESP
+// ============================================================
+
+// Heartbeat - client reports they're still active in a server
+app.post('/api/joiner/heartbeat', (req, res) => {
+    const { key, jobId, userId, username } = req.body;
+    
+    if (!key || !jobId || !userId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Validate the license key
+    const user = findUser({ license_key: key });
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid license key' });
+    }
+    
+    // Check if subscription is active
+    const isActive = user.subscription_expires > Date.now();
+    if (!isActive) {
+        return res.status(401).json({ error: 'Subscription expired' });
+    }
+    
+    // Create job entry if it doesn't exist
+    if (!activeJoinerSessions[jobId]) {
+        activeJoinerSessions[jobId] = {};
+    }
+    
+    // Update or create user session
+    activeJoinerSessions[jobId][userId] = {
+        username: username || 'Unknown',
+        lastSeen: Date.now()
+    };
+    
+    res.json({ success: true });
+});
+
+// Get active Ultra users in a specific JobId
+app.get('/api/joiner/active-users', (req, res) => {
+    const { key, jobId, userId } = req.query;
+    
+    if (!key || !jobId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    // Validate the license key
+    const user = findUser({ license_key: key });
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid license key' });
+    }
+    
+    // Get all users in this job (exclude the requesting user)
+    const jobUsers = activeJoinerSessions[jobId] || {};
+    const now = Date.now();
+    
+    const activeUsers = [];
+    for (const odId in jobUsers) {
+        // Skip the requesting user
+        if (odId === userId) continue;
+        
+        // Skip stale sessions
+        if (now - jobUsers[odId].lastSeen > SESSION_TIMEOUT) continue;
+        
+        activeUsers.push({
+            userId: odId,
+            username: jobUsers[odId].username
+        });
+    }
+    
+    res.json({ users: activeUsers });
+});
+
+// ============================================================
 // BOT SERVER TRACKING (for scanner bots to avoid each other)
 // ============================================================
 
@@ -1987,6 +2060,37 @@ let bananaWs = null;
 let bananaReconnectAttempts = 0;
 let bananaLiveLogs = []; // Store last 50 live logs for in-game clients
 const MAX_BANANA_LOGS = 50;
+
+// ============================================================
+// ACTIVE JOINER SESSIONS (for ESP between Ultra users)
+// ============================================================
+// Track users running the joiner script by JobId
+// Structure: { jobId: { odId: { username, lastSeen }, ... } }
+let activeJoinerSessions = {};
+const SESSION_TIMEOUT = 30000; // 30 seconds - consider user gone if no heartbeat
+
+// Clean up stale sessions every 15 seconds
+setInterval(() => {
+    const now = Date.now();
+    let cleaned = 0;
+    
+    for (const jobId in activeJoinerSessions) {
+        for (const odId in activeJoinerSessions[jobId]) {
+            if (now - activeJoinerSessions[jobId][odId].lastSeen > SESSION_TIMEOUT) {
+                delete activeJoinerSessions[jobId][odId];
+                cleaned++;
+            }
+        }
+        // Remove empty job entries
+        if (Object.keys(activeJoinerSessions[jobId]).length === 0) {
+            delete activeJoinerSessions[jobId];
+        }
+    }
+    
+    if (cleaned > 0) {
+        console.log(`[ESP] Cleaned ${cleaned} stale sessions`);
+    }
+}, 15000);
 
 function formatBananaNumber(n) {
     if (n >= 1e15) return (n / 1e15).toFixed(1) + 'q';
