@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍌 Banana Live Logs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #44ff44;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logs-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .logs-header {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logs-header h2 {
+            color: #ffd700;
+        }
+
+        .clear-btn {
+            background: rgba(255, 68, 68, 0.3);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 68, 68, 0.5);
+        }
+
+        .logs-list {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .log-entry {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffd700;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-entry.highlight {
+            border-left-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .log-entry.ultralight {
+            border-left-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .log-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .log-animals {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .log-animals pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: inherit;
+        }
+
+        .log-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+
+        .meta-item span {
+            color: #ffd700;
+        }
+
+        .job-id {
+            font-family: 'Consolas', monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .job-id:hover {
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state .emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Scrollbar styling */
+        .logs-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .logs-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .logs-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .logs-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.7);
+        }
+
+        .reconnect-btn {
+            background: rgba(68, 255, 68, 0.3);
+            border: 1px solid #44ff44;
+            color: #44ff44;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .reconnect-btn:hover {
+            background: rgba(68, 255, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍌 Banana Live Logs 🍌</h1>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <div class="status-item">
+                    <span>📡 Server:</span>
+                    <span id="serverUptime">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalScans">0</div>
+                <div class="stat-label">Total Scans</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="animalsFound">0</div>
+                <div class="stat-label">Animals Found</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sessionLogs">0</div>
+                <div class="stat-label">Session Logs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="connectedClients">0</div>
+                <div class="stat-label">Watching</div>
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <div class="logs-header">
+                <h2>📋 Live Feed</h2>
+                <div>
+                    <button class="clear-btn" onclick="clearLogs()">🗑️ Clear</button>
+                    <button class="reconnect-btn" onclick="reconnect()">🔄 Reconnect</button>
+                </div>
+            </div>
+            <div class="logs-list" id="logsList">
+                <div class="empty-state">
+                    <div class="emoji">🍌</div>
+                    <h3>Waiting for logs...</h3>
+                    <p>Logs will appear here as bots scan servers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WS_URL = 'wss://web-production-3bf63.up.railway.app/ws';
+        const HEALTH_URL = 'https://web-production-3bf63.up.railway.app/health';
+        
+        let ws = null;
+        let sessionLogCount = 0;
+        let reconnectAttempts = 0;
+        let seenJobIds = new Set(); // Track seen jobs to avoid duplicates
+        let cacheLoaded = false;
+
+        function formatNumber(n) {
+            if (n >= 1e12) return (n / 1e12).toFixed(1) + 't';
+            if (n >= 1e9) return (n / 1e9).toFixed(1) + 'b';
+            if (n >= 1e6) return (n / 1e6).toFixed(1) + 'm';
+            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+            return n.toString();
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Brief visual feedback
+                const el = event.target;
+                const original = el.textContent;
+                el.textContent = '✓ Copied!';
+                setTimeout(() => el.textContent = original, 1000);
+            });
+        }
+
+        function getLogClass(animals) {
+            if (!animals || animals.length === 0) return '';
+            const best = animals[0];
+            if (best.genValue >= 1e12) return 'ultralight';
+            if (best.genValue >= 1e9) return 'highlight';
+            return '';
+        }
+
+        function createLogEntry(scanData, isHistorical = false) {
+            const animals = scanData.animals || [];
+            const jobId = scanData.jobId || 'Unknown';
+            const players = scanData.players || '?';
+            const owners = scanData.owners || 'Unknown';
+            const timestamp = scanData.timestamp ? new Date(scanData.timestamp * 1000).toLocaleTimeString() : new Date().toLocaleTimeString();
+            
+            // Build animals list
+            let animalsHtml = '';
+            if (animals.length > 0) {
+                animals.slice(0, 10).forEach((a, i) => {
+                    const name = a.name || 'Unknown';
+                    const value = a.genValue || 0;
+                    let line = `${i + 1}. ${name} — $${formatNumber(value)}/s`;
+                    if (a.mutation && a.mutation !== 'None') line += ` [${a.mutation}]`;
+                    if (a.traits) line += ` (${a.traits} traits)`;
+                    animalsHtml += line + '\n';
+                });
+                if (animals.length > 10) {
+                    animalsHtml += `... and ${animals.length - 10} more`;
+                }
+            } else {
+                animalsHtml = 'No brainrots found';
+            }
+            
+            // Title from best animal
+            const bestAnimal = animals[0];
+            const title = bestAnimal ? `${bestAnimal.name} — $${formatNumber(bestAnimal.genValue || 0)}/s` : 'Empty Scan';
+            
+            // Determine log class based on value
+            let logClass = '';
+            if (bestAnimal) {
+                if (bestAnimal.genValue >= 1e12) logClass = 'ultralight';
+                else if (bestAnimal.genValue >= 1e9) logClass = 'highlight';
+            }
+            
+            const safeJobId = jobId.replace(/'/g, "\\'");
+            const historicalBadge = isHistorical ? '<span style="background: #666; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;">CACHED</span>' : '';
+
+            return `
+                <div class="log-entry ${logClass}">
+                    <div class="log-header">
+                        <span class="log-title">🔥 ${title}${historicalBadge}</span>
+                        <span class="log-time">${timestamp}</span>
+                    </div>
+                    <div class="log-animals"><pre>${animalsHtml}</pre></div>
+                    <div class="log-meta">
+                        <div class="meta-item">👥 Players: <span>${players}</span></div>
+                        <div class="meta-item">👤 Owner: <span>${owners}</span></div>
+                        <div class="meta-item">🆔 Job ID: <span class="job-id" onclick="copyToClipboard('${safeJobId}')">${jobId}</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function processScanResult(scanData, isHistorical = false) {
+            const jobId = scanData.jobId;
+            
+            // Skip duplicates
+            if (seenJobIds.has(jobId)) {
+                return false;
+            }
+            seenJobIds.add(jobId);
+            
+            // Skip scans with no animals (unless you want to see empty scans)
+            if (!scanData.animals || scanData.animals.length === 0) {
+                return false;
+            }
+            
+            const logsList = document.getElementById('logsList');
+            
+            // Remove empty state if present
+            const emptyState = logsList.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+
+            sessionLogCount++;
+            document.getElementById('sessionLogs').textContent = sessionLogCount;
+
+            const logHtml = createLogEntry(scanData, isHistorical);
+            
+            if (isHistorical) {
+                // Historical logs go at the end
+                logsList.insertAdjacentHTML('beforeend', logHtml);
+            } else {
+                // Live logs go at the top
+                logsList.insertAdjacentHTML('afterbegin', logHtml);
+            }
+
+            // Keep only last 100 logs
+            while (logsList.children.length > 100) {
+                logsList.removeChild(logsList.lastChild);
+            }
+            
+            return true;
+        }
+        
+        function addLog(data) {
+            console.log('Received:', data.type || 'unknown', data);
+            
+            // Handle different message types from Banana relay
+            if (data.type === 'welcome') {
+                console.log(`🍌 Connected! Server has ${data.cached_results} cached results`);
+                return;
+            }
+            
+            if (data.type === 'cache') {
+                // Historical cached results - show once on connect
+                if (cacheLoaded) return; // Don't reload cache
+                cacheLoaded = true;
+                
+                console.log(`📦 Loading ${data.data?.length || 0} cached results...`);
+                
+                if (data.data && Array.isArray(data.data)) {
+                    // Sort by timestamp descending (newest first)
+                    const sorted = [...data.data].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    sorted.forEach(scan => {
+                        if (scan.type === 'scan_result') {
+                            processScanResult(scan, true);
+                        }
+                    });
+                }
+                return;
+            }
+            
+            if (data.type === 'scan_result') {
+                // Live scan result!
+                processScanResult(data, false);
+                return;
+            }
+            
+            // Unknown format - try to process anyway
+            if (data.jobId && data.animals) {
+                processScanResult(data, false);
+            }
+        }
+
+        function clearLogs() {
+            const logsList = document.getElementById('logsList');
+            logsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="emoji">🍌</div>
+                    <h3>Logs cleared</h3>
+                    <p>Waiting for new logs...</p>
+                </div>
+            `;
+            sessionLogCount = 0;
+            document.getElementById('sessionLogs').textContent = '0';
+        }
+
+        function updateStatus(connected) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (connected) {
+                dot.classList.add('connected');
+                text.textContent = 'Connected';
+                reconnectAttempts = 0;
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = 'Disconnected';
+            }
+        }
+
+        async function fetchHealth() {
+            try {
+                const res = await fetch(HEALTH_URL);
+                const data = await res.json();
+                
+                document.getElementById('totalScans').textContent = formatNumber(data.stats?.servers_scanned || 0);
+                document.getElementById('animalsFound').textContent = formatNumber(data.stats?.animals_found || 0);
+                document.getElementById('connectedClients').textContent = data.clients || 0;
+                document.getElementById('serverUptime').textContent = data.uptime || '--';
+            } catch (e) {
+                console.error('Health fetch failed:', e);
+            }
+        }
+
+        function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log('🍌 Connected to Banana relay!');
+                updateStatus(true);
+                fetchHealth();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('📥 Received:', data);
+                    addLog(data);
+                    
+                    // Update stats periodically
+                    if (sessionLogCount % 10 === 0) {
+                        fetchHealth();
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('🔌 Disconnected');
+                updateStatus(false);
+                
+                // Auto reconnect with backoff
+                reconnectAttempts++;
+                const delay = Math.min(1000 * reconnectAttempts, 10000);
+                console.log(`Reconnecting in ${delay}ms...`);
+                setTimeout(connect, delay);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function reconnect() {
+            reconnectAttempts = 0;
+            seenJobIds.clear();
+            cacheLoaded = false;
+            clearLogs();
+            connect();
+        }
+
+        // Initial connection
+        connect();
+        
+        // Fetch health every 30 seconds
+        setInterval(fetchHealth, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Ultra Notifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            padding: 170px 30px 50px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .admin-header h1 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            color: #ff4444;
+        }
+        
+        .admin-header h1 span {
+            color: var(--text-primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        /* Plan Configuration */
+        .plans-config-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .plans-config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            background: rgba(0, 255, 136, 0.05);
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+        }
+        
+        .plans-config-header:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .plans-config-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--accent-primary);
+        }
+        
+        .toggle-icon {
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+        
+        .plans-config-content {
+            padding: 20px;
+        }
+        
+        .plans-grid {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .plans-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .plans-grid::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 4px;
+        }
+        
+        .plans-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+        
+        .plans-grid::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+        
+        .plan-config-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .plan-config-card.bronze { border-color: #CD7F32; }
+        .plan-config-card.silver { border-color: #C0C0C0; }
+        .plan-config-card.gold { border-color: #FFD700; }
+        .plan-config-card.diamond { border-color: #B9F2FF; }
+        .plan-config-card.diamond-private { 
+            border-color: #FF00FF; 
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(138, 43, 226, 0.1));
+        }
+        
+        .admin-only-badge {
+            font-size: 8px;
+            background: #FF00FF;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        
+        .plan-toggle-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: auto;
+        }
+        
+        .plan-toggle-btn.enabled {
+            background: #00cc00;
+            color: white;
+        }
+        
+        .plan-toggle-btn.disabled {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .plan-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .plan-config-card.plan-disabled {
+            opacity: 0.5;
+            background: rgba(255, 68, 68, 0.1);
+        }
+        
+        .plan-config-card.plan-disabled .plan-config-header-card {
+            text-decoration: line-through;
+        }
+        
+        .plan-config-header-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .plan-config-header-card .plan-icon {
+            font-size: 24px;
+        }
+        
+        .plan-name-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            outline: none;
+        }
+        
+        .plan-config-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .plan-config-row label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .plan-config-row input {
+            width: 80px;
+            padding: 6px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            text-align: right;
+        }
+        
+        .plan-config-row input:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+        
+        .input-with-prefix {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .input-with-prefix span {
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+        
+        .input-with-prefix input {
+            width: 60px;
+        }
+        
+        .btn-save-plans {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-save-plans:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        .slots-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .slots-adjuster input {
+            width: 45px;
+            text-align: center;
+        }
+        
+        .slot-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slot-btn.minus {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .slot-btn.minus:hover {
+            background: #ff6666;
+            transform: scale(1.1);
+        }
+        
+        .slot-btn.plus {
+            background: #00cc00;
+            color: white;
+        }
+        
+        .slot-btn.plus:hover {
+            background: #00ee00;
+            transform: scale(1.1);
+        }
+        
+        .global-plan-settings {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--accent-primary);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+        }
+        
+        .global-setting {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .global-setting label {
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-size: 14px;
+        }
+        
+        .global-setting .slots-adjuster input {
+            width: 50px;
+        }
+        
+        .setting-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 900px) {
+            .plans-grid {
+                flex-wrap: nowrap;
+            }
+            .plan-config-card {
+                min-width: 180px;
+            }
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent-primary);
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .users-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 50px 180px 120px 100px 80px 80px 80px 60px 60px 180px;
+            gap: 10px;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 50px 180px 120px 100px 80px 80px 80px 60px 60px 180px;
+            gap: 10px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .table-row:last-child {
+            border-bottom: none;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-discord {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .user-roblox {
+            font-size: 11px;
+            color: var(--accent-secondary);
+        }
+        
+        .user-key {
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .plan-badge.none { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+        .plan-badge.bronze { background: rgba(205,127,50,0.2); color: #CD7F32; }
+        .plan-badge.silver { background: rgba(192,192,192,0.2); color: #C0C0C0; }
+        .plan-badge.gold { background: rgba(255,215,0,0.2); color: #FFD700; }
+        .plan-badge.diamond { background: rgba(185,242,255,0.2); color: #B9F2FF; }
+        
+        .balance { color: var(--accent-primary); font-weight: 600; }
+        .hours { color: var(--accent-secondary); }
+        
+        .warnings {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .warning-count {
+            background: #ff4444;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .warning-count.clean {
+            background: #00ff88;
+            color: var(--bg-primary);
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-warn {
+            background: #ff8800;
+            color: white;
+        }
+        
+        .btn-ban {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .btn-gift {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+        
+        .btn-view {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .modal h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .modal-btn.cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .modal-btn.confirm {
+            background: var(--accent-gradient);
+            color: var(--bg-primary);
+        }
+        
+        .modal-btn.danger {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 99999;
+        }
+        
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: #ff4444; color: white; }
+        
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            color: var(--accent-primary);
+        }
+        
+        /* Pause & Sales button styles */
+        .pause-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .btn-sales {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-sales.open {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+        
+        .btn-sales.closed {
+            background: #ff8800;
+            color: white;
+            animation: pulse-orange 2s infinite;
+        }
+        
+        @keyframes pulse-orange {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 136, 0, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(255, 136, 0, 0.2); }
+        }
+        
+        .sales-closed-banner {
+            background: linear-gradient(90deg, #ff8800, #ffaa33);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+        
+        .sales-closed-banner.hidden {
+            display: none;
+        }
+        
+        .btn-pause-all {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-pause-all.active {
+            background: #ff4444;
+            color: white;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .btn-pause-all.inactive {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .btn-pause-all:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-lock-all {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            color: white;
+        }
+        
+        .btn-lock-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 136, 0, 0.3);
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(255, 68, 68, 0.2); }
+        }
+        
+        .global-pause-banner {
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .global-pause-banner.hidden {
+            display: none;
+        }
+        
+        .btn-pause {
+            background: #ff8800;
+            color: white;
+        }
+        
+        .btn-pause.paused {
+            background: #00cc00;
+        }
+        
+        .btn-lock {
+            background: #666;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .btn-lock.locked {
+            background: #ff4444;
+        }
+        
+        .btn-lock:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .paused-badge {
+            background: #ff4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+        
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .table-header, .table-row {
+                grid-template-columns: 40px 130px 90px 70px 60px 60px 60px 40px 50px 130px;
+                font-size: 10px;
+            }
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+    </div>
+
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">ULTRA NOTIFIER</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard" class="back-link">← Dashboard</a>
+            <a href="/auth/logout" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔒 <span>Admin Panel</span></h1>
+            <div class="pause-controls">
+                <button class="btn-sales open" id="salesBtn" onclick="toggleSales()">
+                    <span id="salesIcon">🛒</span>
+                    <span id="salesText">Sales Open</span>
+                </button>
+                <button class="btn-pause-all inactive" id="pauseAllBtn" onclick="togglePauseAll()">
+                    <span id="pauseAllIcon">⏸️</span>
+                    <span id="pauseAllText">Pause All Plans</span>
+                </button>
+                <button class="btn-lock-all" id="lockAllBtn" onclick="lockAllPaused()">
+                    <span id="lockAllIcon">🔒</span>
+                    <span id="lockAllText">Lock All Paused</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sales Closed Banner -->
+        <div class="sales-closed-banner hidden" id="salesClosedBanner">
+            <span>🚫 SALES ARE CLOSED - Users cannot purchase new subscriptions</span>
+            <button onclick="toggleSales()" style="background: white; color: #ff8800; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer;">Open Sales</button>
+        </div>
+
+        <!-- Global Pause Banner -->
+        <div class="global-pause-banner hidden" id="globalPauseBanner">
+            <span>⚠️ ALL PLANS ARE CURRENTLY PAUSED - Users will be kicked from game</span>
+            <button onclick="togglePauseAll()" style="background: white; color: #ff4444; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer;">Resume All</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Subs</h3>
+                <div class="value" id="activeSubs">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Balance</h3>
+                <div class="value">$<span id="totalBalance">0</span></div>
+            </div>
+            <div class="stat-card">
+                <h3>Banned HWIDs</h3>
+                <div class="value" id="bannedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Logs</h3>
+                <div class="value" id="totalLogs">0</div>
+            </div>
+        </div>
+
+        <!-- Plan Pricing Section -->
+        <div class="plans-config-section" id="plansConfigSection">
+            <div class="plans-config-header" onclick="togglePlansConfig()">
+                <h3>💰 Plan Pricing Configuration</h3>
+                <span class="toggle-icon" id="plansToggleIcon">▼</span>
+            </div>
+            <div class="plans-config-content" id="plansConfigContent" style="display: none;">
+                <div class="plans-grid">
+                    <div class="plan-config-card bronze" id="planCard1">
+                        <div class="plan-config-header-card">
+                            <span class="plan-icon">🥉</span>
+                            <input type="text" class="plan-name-input" id="plan1Name" value="Bronze">
+                            <button class="plan-toggle-btn enabled" id="plan1Toggle" onclick="togglePlanEnabled(1)" title="Click to disable">✓</button>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Price/hr:</label>
+                            <div class="input-with-prefix">
+                                <span>$</span>
+                                <input type="number" step="0.25" min="0" id="plan1Price" value="1.00">
+                            </div>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Value:</label>
+                            <input type="text" id="plan1MaxValue" value="50M" placeholder="e.g. 50M, 1B">
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Slots:</label>
+                            <div class="slots-adjuster">
+                                <button class="slot-btn minus" onclick="adjustSlots(1, -1)">−</button>
+                                <input type="number" min="1" max="100" id="plan1Slots" value="2">
+                                <button class="slot-btn plus" onclick="adjustSlots(1, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-config-card silver" id="planCard2">
+                        <div class="plan-config-header-card">
+                            <span class="plan-icon">🥈</span>
+                            <input type="text" class="plan-name-input" id="plan2Name" value="Silver">
+                            <button class="plan-toggle-btn enabled" id="plan2Toggle" onclick="togglePlanEnabled(2)" title="Click to disable">✓</button>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Price/hr:</label>
+                            <div class="input-with-prefix">
+                                <span>$</span>
+                                <input type="number" step="0.25" min="0" id="plan2Price" value="2.00">
+                            </div>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Value:</label>
+                            <input type="text" id="plan2MaxValue" value="200M" placeholder="e.g. 50M, 1B">
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Slots:</label>
+                            <div class="slots-adjuster">
+                                <button class="slot-btn minus" onclick="adjustSlots(2, -1)">−</button>
+                                <input type="number" min="1" max="100" id="plan2Slots" value="2">
+                                <button class="slot-btn plus" onclick="adjustSlots(2, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-config-card gold" id="planCard3">
+                        <div class="plan-config-header-card">
+                            <span class="plan-icon">🥇</span>
+                            <input type="text" class="plan-name-input" id="plan3Name" value="Gold">
+                            <button class="plan-toggle-btn enabled" id="plan3Toggle" onclick="togglePlanEnabled(3)" title="Click to disable">✓</button>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Price/hr:</label>
+                            <div class="input-with-prefix">
+                                <span>$</span>
+                                <input type="number" step="0.25" min="0" id="plan3Price" value="3.50">
+                            </div>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Value:</label>
+                            <input type="text" id="plan3MaxValue" value="400M" placeholder="e.g. 50M, 1B">
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Slots:</label>
+                            <div class="slots-adjuster">
+                                <button class="slot-btn minus" onclick="adjustSlots(3, -1)">−</button>
+                                <input type="number" min="1" max="100" id="plan3Slots" value="4">
+                                <button class="slot-btn plus" onclick="adjustSlots(3, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-config-card diamond" id="planCard4">
+                        <div class="plan-config-header-card">
+                            <span class="plan-icon">💎</span>
+                            <input type="text" class="plan-name-input" id="plan4Name" value="Diamond">
+                            <button class="plan-toggle-btn enabled" id="plan4Toggle" onclick="togglePlanEnabled(4)" title="Click to disable">✓</button>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Price/hr:</label>
+                            <div class="input-with-prefix">
+                                <span>$</span>
+                                <input type="number" step="0.25" min="0" id="plan4Price" value="4.25">
+                            </div>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Value:</label>
+                            <input type="text" id="plan4MaxValue" value="∞" placeholder="e.g. 50M, 1B, ∞">
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Slots:</label>
+                            <div class="slots-adjuster">
+                                <button class="slot-btn minus" onclick="adjustSlots(4, -1)">−</button>
+                                <input type="number" min="1" max="100" id="plan4Slots" value="2">
+                                <button class="slot-btn plus" onclick="adjustSlots(4, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plan-config-card diamond-private" id="planCard5">
+                        <div class="plan-config-header-card">
+                            <span class="plan-icon">👑</span>
+                            <input type="text" class="plan-name-input" id="plan5Name" value="Diamond Private">
+                            <span class="admin-only-badge">ADMIN ONLY</span>
+                            <button class="plan-toggle-btn enabled" id="plan5Toggle" onclick="togglePlanEnabled(5)" title="Click to disable">✓</button>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Price/hr:</label>
+                            <div class="input-with-prefix">
+                                <span>$</span>
+                                <input type="number" step="0.25" min="0" id="plan5Price" value="5.00">
+                            </div>
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Value:</label>
+                            <input type="text" id="plan5MaxValue" value="∞" placeholder="e.g. 50M, 1B, ∞">
+                        </div>
+                        <div class="plan-config-row">
+                            <label>Max Slots:</label>
+                            <div class="slots-adjuster">
+                                <button class="slot-btn minus" onclick="adjustSlots(5, -1)">−</button>
+                                <input type="number" min="1" max="100" id="plan5Slots" value="1">
+                                <button class="slot-btn plus" onclick="adjustSlots(5, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Global Settings -->
+                <div class="global-plan-settings">
+                    <div class="global-setting">
+                        <label>⏱️ Global Minimum Hours:</label>
+                        <div class="slots-adjuster">
+                            <button class="slot-btn minus" onclick="adjustGlobalMinHours(-0.5)">−</button>
+                            <input type="number" step="0.5" min="0.5" max="24" id="globalMinHours" value="2">
+                            <button class="slot-btn plus" onclick="adjustGlobalMinHours(0.5)">+</button>
+                        </div>
+                        <span class="setting-hint">Minimum hours users must purchase</span>
+                    </div>
+                </div>
+                
+                <button class="btn-save-plans" onclick="savePlans()">💾 Save Plan Configuration</button>
+            </div>
+        </div>
+
+        <!-- VPS Tracking -->
+        <div class="plans-config-section" id="vpsSection">
+            <div class="plans-config-header" onclick="toggleVps()">
+                <h3>🖥️ VPS Status (<span id="vpsOnlinePercent">0</span>% Online | <span id="vpsHoppingPercent">0</span>% Hopping)</h3>
+                <span class="toggle-icon" id="vpsToggle">▼</span>
+            </div>
+            <div class="plans-config-body" id="vpsBody" style="display:none;padding:15px;">
+                <!-- Totals Bar -->
+                <div style="background:#0d0d1a;padding:15px;border-radius:10px;margin-bottom:15px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                        <span style="color:#888;">Total Bots: <strong id="vpsTotalBots" style="color:#fff;">0</strong></span>
+                        <span style="color:#00ff88;">Hopping: <strong id="vpsTotalHopping">0</strong></span>
+                        <span style="color:#888;">Idle: <strong id="vpsTotalIdle">0</strong></span>
+                        <span style="color:#ff4444;">Offline: <strong id="vpsTotalOffline">0</strong></span>
+                    </div>
+                    <div style="background:#333;height:20px;border-radius:10px;overflow:hidden;">
+                        <div id="vpsProgressBar" style="height:100%;background:linear-gradient(90deg,#00ff88,#00d4ff);width:0%;transition:width 0.5s;"></div>
+                    </div>
+                </div>
+                
+                <!-- VPS List -->
+                <div id="vpsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:15px;"></div>
+                
+                <!-- Add VPS Button -->
+                <button onclick="addVps()" style="width:100%;padding:12px;background:#0d0d1a;border:1px dashed #333;color:#888;border-radius:8px;cursor:pointer;">+ Add New VPS</button>
+            </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div class="plans-config-section" id="paymentsSection">
+            <div class="plans-config-header" onclick="togglePayments()">
+                <h3>💳 Pending Payments (<span id="pendingCount">0</span>)</h3>
+                <span class="toggle-icon" id="paymentsToggle">▼</span>
+            </div>
+            <div class="plans-config-body" id="paymentsBody" style="display:none;padding:15px;">
+                <div id="paymentsList" style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="color:#666;text-align:center;">No pending payments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by Discord, Roblox username, key, or HWID...">
+            <select class="filter-select" id="filterSelect" onchange="loadUsers()">
+                <option value="all">All Users</option>
+                <option value="active">Active Subscription</option>
+                <option value="warned">Has Warnings</option>
+                <option value="balance">Has Balance</option>
+            </select>
+        </div>
+
+        <!-- Users Table -->
+        <div class="users-table">
+            <div class="table-header">
+                <div></div>
+                <div>User</div>
+                <div>License Key</div>
+                <div>Plan</div>
+                <div>Balance</div>
+                <div>Hours</div>
+                <div>Warns</div>
+                <div>HWID</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+            <div id="usersBody">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Warn Modal -->
+    <div class="modal-overlay" id="warnModal">
+        <div class="modal">
+            <h2>⚠️ Warn User</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Warning: <span id="warnUsername"></span></p>
+            <input type="text" class="modal-input" id="warnReason" placeholder="Reason for warning...">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal('warnModal')">Cancel</button>
+                <button class="modal-btn danger" onclick="confirmWarn()">Warn User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ban Modal -->
+    <div class="modal-overlay" id="banModal">
+        <div class="modal">
+            <h2>🚫 Ban User HWID</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Banning: <span id="banUsername"></span></p>
+            <p style="color: #ff4444; font-size: 13px; margin-bottom: 15px;">This will ban their HWID and prevent them from using any account on this device.</p>
+            <input type="text" class="modal-input" id="banReason" placeholder="Reason for ban...">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal('banModal')">Cancel</button>
+                <button class="modal-btn danger" onclick="confirmBan()">Ban HWID</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Modal -->
+    <div class="modal-overlay" id="giftModal">
+        <div class="modal">
+            <h2>🎁 Gift to User</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Gifting to: <span id="giftUsername"></span></p>
+            <select class="modal-input" id="giftType">
+                <option value="balance">Add Balance</option>
+                <option value="time">Add Subscription Time</option>
+            </select>
+            <input type="number" class="modal-input" id="giftAmount" placeholder="Amount ($) or Hours">
+            <select class="modal-input" id="giftTier" style="display: none;">
+                <option value="1">Bronze</option>
+                <option value="2">Silver</option>
+                <option value="3">Gold</option>
+                <option value="4">Diamond</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal('giftModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmGift()">Gift</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal" style="width: 500px;">
+            <h2>👤 User Details</h2>
+            <div id="userDetails" style="color: var(--text-secondary); font-size: 14px; line-height: 2;"></div>
+            <div class="modal-buttons" style="margin-top: 20px; flex-wrap: wrap; gap: 8px;">
+                <button class="modal-btn cancel" onclick="closeModal('viewModal')">Close</button>
+                <button class="modal-btn" id="viewPauseBtn" style="background: #ff8800; color: white;" onclick="toggleUserPauseFromModal()">⏸️ Pause Plan</button>
+                <button class="modal-btn" style="background: #ff8800; color: white;" onclick="resetUserHWID()">Reset HWID</button>
+                <button class="modal-btn" style="background: var(--accent-primary); color: var(--bg-primary);" onclick="clearUserWarnings()">Clear Warns</button>
+                <button class="modal-btn" id="viewUnbanBtn" style="background: #00cc00; color: white; display: none;" onclick="unbanUser()">✅ Unban User</button>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                <p style="color: #ff4444; font-size: 12px; margin-bottom: 10px;">⚠️ Subscription Management</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="modal-btn danger" onclick="removeSubscription()">Remove Sub</button>
+                    <button class="modal-btn" style="background: #ff8800; color: white;" onclick="removeHours()">Remove Hours</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove Hours Modal -->
+    <div class="modal-overlay" id="removeHoursModal">
+        <div class="modal">
+            <h2>⏰ Remove Hours</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Remove hours from: <span id="removeHoursUsername"></span></p>
+            <input type="number" class="modal-input" id="removeHoursAmount" placeholder="Hours to remove" min="0.5" step="0.5">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal('removeHoursModal')">Cancel</button>
+                <button class="modal-btn danger" onclick="confirmRemoveHours()">Remove Hours</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Success!</div>
+
+    <script>
+        let users = [];
+        let selectedUserId = null;
+        let globalPaused = false;
+        let salesClosed = false;
+        
+        // Format decimal hours to readable time (e.g., 0.7 -> "42m", 2.5 -> "2h 30m")
+        function formatHours(decimalHours) {
+            if (!decimalHours || decimalHours <= 0) return '-';
+            
+            const totalMinutes = Math.round(decimalHours * 60);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            if (hours === 0) {
+                return `${minutes}m`;
+            } else if (minutes === 0) {
+                return `${hours}h`;
+            } else {
+                return `${hours}h ${minutes}m`;
+            }
+        }
+        
+        async function loadStats() {
+            const res = await fetch('/api/admin/stats');
+            const stats = await res.json();
+            
+            document.getElementById('totalUsers').textContent = stats.total_users;
+            document.getElementById('activeSubs').textContent = stats.active_subscriptions;
+            document.getElementById('totalBalance').textContent = stats.total_balance;
+            document.getElementById('bannedCount').textContent = stats.banned_hwids;
+            document.getElementById('totalLogs').textContent = stats.total_logs;
+        }
+        
+        async function loadPauseStatus() {
+            try {
+                const res = await fetch('/api/admin/pause-status');
+                const data = await res.json();
+                globalPaused = data.global_paused;
+                salesClosed = data.sales_closed;
+                updatePauseUI();
+                updateSalesUI();
+            } catch (e) {
+                console.error('Failed to load pause status', e);
+            }
+        }
+        
+        function updatePauseUI() {
+            const btn = document.getElementById('pauseAllBtn');
+            const banner = document.getElementById('globalPauseBanner');
+            const icon = document.getElementById('pauseAllIcon');
+            const text = document.getElementById('pauseAllText');
+            
+            if (globalPaused) {
+                btn.className = 'btn-pause-all active';
+                icon.textContent = '▶️';
+                text.textContent = 'Resume All Plans';
+                banner.classList.remove('hidden');
+            } else {
+                btn.className = 'btn-pause-all inactive';
+                icon.textContent = '⏸️';
+                text.textContent = 'Pause All Plans';
+                banner.classList.add('hidden');
+            }
+            
+            // Re-render users to update their paused status display
+            if (users.length > 0) {
+                renderUsers();
+            }
+        }
+        
+        function updateSalesUI() {
+            const btn = document.getElementById('salesBtn');
+            const banner = document.getElementById('salesClosedBanner');
+            const icon = document.getElementById('salesIcon');
+            const text = document.getElementById('salesText');
+            
+            if (salesClosed) {
+                btn.className = 'btn-sales closed';
+                icon.textContent = '🚫';
+                text.textContent = 'Sales Closed';
+                banner.classList.remove('hidden');
+            } else {
+                btn.className = 'btn-sales open';
+                icon.textContent = '🛒';
+                text.textContent = 'Sales Open';
+                banner.classList.add('hidden');
+            }
+        }
+        
+        async function togglePauseAll() {
+            try {
+                const res = await fetch('/api/admin/pause-all', { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    globalPaused = data.global_paused;
+                    updatePauseUI();
+                    showToast(data.message);
+                } else {
+                    showToast(data.error || 'Failed to toggle pause', true);
+                }
+            } catch (e) {
+                console.error('Pause all error:', e);
+                showToast('Error toggling pause: ' + e.message, true);
+            }
+        }
+        
+        async function toggleSales() {
+            const res = await fetch('/api/admin/toggle-sales', { method: 'POST' });
+            const data = await res.json();
+            
+            if (data.success) {
+                salesClosed = data.sales_closed;
+                updateSalesUI();
+                showToast(data.message);
+            }
+        }
+        
+        async function toggleUserPause(userId) {
+            const res = await fetch(`/api/admin/pause/${userId}`, { method: 'POST' });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast(data.message);
+                loadUsers();
+            }
+        }
+        
+        async function toggleLockPause(userId) {
+            const res = await fetch(`/api/admin/lock-pause/${userId}`, { method: 'POST' });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast(data.message);
+                loadUsers();
+            } else {
+                showToast(data.error || 'Failed to toggle lock', true);
+            }
+        }
+        
+        async function lockAllPaused() {
+            if (!confirm('Lock ALL currently paused users? They will not be able to unpause themselves.')) return;
+            
+            const res = await fetch('/api/admin/lock-all-paused', { method: 'POST' });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast(data.message);
+                loadUsers();
+            } else {
+                showToast(data.error || 'Failed to lock all', true);
+            }
+        }
+        
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users');
+            users = await res.json();
+            renderUsers();
+        }
+        
+        function renderUsers() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filter = document.getElementById('filterSelect').value;
+            
+            let filtered = users.filter(u => {
+                // Search filter
+                if (search) {
+                    const match = 
+                        u.username?.toLowerCase().includes(search) ||
+                        u.roblox_username?.toLowerCase().includes(search) ||
+                        u.license_key?.toLowerCase().includes(search) ||
+                        u.hwid?.toLowerCase().includes(search);
+                    if (!match) return false;
+                }
+                
+                // Type filter
+                if (filter === 'active' && u.subscription_tier === 0) return false;
+                if (filter === 'warned' && u.warnings === 0) return false;
+                if (filter === 'balance' && u.balance <= 0) return false;
+                
+                return true;
+            });
+            
+            const html = filtered.map(u => {
+                // User is effectively paused if global pause is on OR their individual pause is on
+                const isPaused = globalPaused || u.paused;
+                return `
+                <div class="table-row" style="${isPaused ? 'background: rgba(255, 68, 68, 0.1);' : ''}">
+                    <img class="user-avatar" src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div class="user-info">
+                        <span class="user-discord">${u.username}${isPaused ? '<span class="paused-badge">' + (globalPaused ? 'GLOBAL PAUSE' : 'PAUSED') + '</span>' : ''}</span>
+                        <span class="user-roblox">${u.roblox_username || 'No Roblox'}</span>
+                    </div>
+                    <span class="user-key">${u.license_key}</span>
+                    <span class="plan-badge ${u.plan_name?.toLowerCase() || 'none'}">${u.plan_name || 'None'}</span>
+                    <span class="balance">$${u.balance.toFixed(2)}</span>
+                    <span class="hours">${formatHours(parseFloat(u.hours_remaining))}</span>
+                    <div class="warnings">
+                        <span class="warning-count ${u.warnings === 0 ? 'clean' : ''}">${u.warnings}</span>
+                    </div>
+                    <span style="font-size: 10px; color: ${u.hwid ? 'var(--accent-secondary)' : 'var(--text-muted)'}">
+                        ${u.hwid ? '✓' : '—'}
+                    </span>
+                    <button class="action-btn ${isPaused ? 'btn-pause paused' : 'btn-pause'}" onclick="toggleUserPause('${u.id}')" title="${isPaused ? 'Resume' : 'Pause'}" ${globalPaused ? 'disabled style="opacity:0.5"' : ''}>
+                        ${isPaused ? '▶️' : '⏸️'}
+                    </button>
+                    <button class="action-btn ${u.pause_locked ? 'btn-lock locked' : 'btn-lock'}" onclick="toggleLockPause('${u.id}')" title="${u.pause_locked ? 'Unlock Pause' : 'Lock Pause'}" ${!isPaused || globalPaused ? 'disabled style="opacity:0.5"' : ''}>
+                        ${u.pause_locked ? '🔓' : '🔒'}
+                    </button>
+                    <div class="action-btns">
+                        <button class="action-btn btn-view" onclick="viewUser('${u.id}')">👁</button>
+                        <button class="action-btn btn-gift" onclick="giftUser('${u.id}')">🎁</button>
+                        <button class="action-btn btn-warn" onclick="warnUser('${u.id}')">⚠️</button>
+                        <button class="action-btn btn-ban" onclick="banUser('${u.id}')" ${!u.hwid ? 'disabled style="opacity:0.5"' : ''}>🚫</button>
+                    </div>
+                </div>
+            `}).join('');
+            
+            document.getElementById('usersBody').innerHTML = html || '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No users found</div>';
+        }
+        
+        function viewUser(id) {
+            const user = users.find(u => u.id === id);
+            selectedUserId = id;
+            
+            // Format HWID history
+            let hwidHistoryHtml = '';
+            if (user.hwid_history && user.hwid_history.length > 0) {
+                hwidHistoryHtml = `
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; max-height: 120px; overflow-y: auto;">
+                        <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 5px;">📜 HWID History:</p>
+                        ${user.hwid_history.map(h => `
+                            <div style="font-size: 10px; color: var(--text-secondary); padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <code style="color: #ffbb00;">${h.hwid.substring(0, 20)}...</code>
+                                <span style="color: ${h.action === 'set' ? '#00ff88' : h.action === 'reset' ? '#ff8800' : '#ff4444'};">
+                                    ${h.action === 'set' ? '✓ Set' : h.action === 'reset' ? '↻ Reset' : '🔧 Admin Reset'}
+                                </span>
+                                <span style="color: var(--text-muted);">${new Date(h.timestamp).toLocaleString()}</span>
+                                ${h.admin ? `<span style="color: #ff4444;"> by ${h.admin}</span>` : ''}
+                            </div>
+                        `).reverse().join('')}
+                    </div>
+                `;
+            }
+            
+            // Banned status
+            const bannedHtml = user.hwid_banned ? 
+                '<span style="color: #ff4444; font-weight: 700; background: rgba(255,68,68,0.2); padding: 2px 8px; border-radius: 4px;">🚫 BANNED</span>' : 
+                '<span style="color: #00ff88;">✓ Not banned</span>';
+            
+            document.getElementById('userDetails').innerHTML = `
+                <p><strong>Discord:</strong> ${user.username}</p>
+                <p><strong>Roblox:</strong> ${user.roblox_username || 'Not linked'}</p>
+                <p><strong>License Key:</strong> <code style="color: var(--accent-primary)">${user.license_key}</code></p>
+                <p><strong>HWID:</strong> <code style="font-size: 11px;">${user.hwid || 'None'}</code> ${bannedHtml}</p>
+                <p><strong>Balance:</strong> $${user.balance.toFixed(2)}</p>
+                <p><strong>Plan:</strong> ${user.plan_name || 'None'}</p>
+                <p><strong>Time Remaining:</strong> ${formatHours(parseFloat(user.hours_remaining))}</p>
+                <p><strong>Warnings:</strong> <span style="color: ${user.warnings >= 2 ? '#ff4444' : user.warnings > 0 ? '#ff8800' : '#00ff88'};">${user.warnings >= 2 ? 'BANNED' : user.warnings + '/2'}</span></p>
+                <p><strong>Status:</strong> <span style="color: ${user.paused ? '#ff4444' : '#00ff88'}; font-weight: 700;">${user.paused ? (user.pause_locked ? '🔒 PAUSED (Locked)' : '⏸️ PAUSED') : '▶️ Active'}</span></p>
+                <p><strong>Created:</strong> ${new Date(user.created_at).toLocaleString()}</p>
+                <p><strong>Last Active:</strong> ${user.last_active ? new Date(user.last_active).toLocaleString() : 'Never'}</p>
+                ${hwidHistoryHtml}
+            `;
+            
+            // Update pause button
+            const pauseBtn = document.getElementById('viewPauseBtn');
+            if (user.paused) {
+                pauseBtn.innerHTML = '▶️ Resume Plan';
+                pauseBtn.style.background = '#00cc00';
+            } else {
+                pauseBtn.innerHTML = '⏸️ Pause Plan';
+                pauseBtn.style.background = '#ff8800';
+            }
+            
+            // Update unban button visibility
+            const unbanBtn = document.getElementById('viewUnbanBtn');
+            if (user.hwid_banned || user.warnings >= 2) {
+                unbanBtn.style.display = 'inline-block';
+            } else {
+                unbanBtn.style.display = 'none';
+            }
+            
+            document.getElementById('viewModal').classList.add('active');
+        }
+        
+        async function toggleUserPauseFromModal() {
+            await toggleUserPause(selectedUserId);
+            // Refresh modal
+            const user = users.find(u => u.id === selectedUserId);
+            if (user) viewUser(selectedUserId);
+        }
+        
+        function warnUser(id) {
+            const user = users.find(u => u.id === id);
+            selectedUserId = id;
+            document.getElementById('warnUsername').textContent = user.username;
+            document.getElementById('warnReason').value = '';
+            document.getElementById('warnModal').classList.add('active');
+        }
+        
+        function banUser(id) {
+            const user = users.find(u => u.id === id);
+            selectedUserId = id;
+            document.getElementById('banUsername').textContent = user.username;
+            document.getElementById('banReason').value = '';
+            document.getElementById('banModal').classList.add('active');
+        }
+        
+        function giftUser(id) {
+            const user = users.find(u => u.id === id);
+            selectedUserId = id;
+            document.getElementById('giftUsername').textContent = user.username;
+            document.getElementById('giftAmount').value = '';
+            document.getElementById('giftModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        async function confirmWarn() {
+            const reason = document.getElementById('warnReason').value;
+            
+            const res = await fetch(`/api/admin/warn/${selectedUserId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
+            });
+            
+            if (res.ok) {
+                showToast('User warned!');
+                loadUsers();
+            } else {
+                showToast('Failed to warn user', true);
+            }
+            
+            closeModal('warnModal');
+        }
+        
+        async function confirmBan() {
+            const reason = document.getElementById('banReason').value;
+            
+            const res = await fetch(`/api/admin/ban/${selectedUserId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
+            });
+            
+            if (res.ok) {
+                showToast('User HWID banned!');
+                loadUsers();
+                loadStats();
+            } else {
+                const data = await res.json();
+                showToast(data.error || 'Failed to ban', true);
+            }
+            
+            closeModal('banModal');
+        }
+        
+        async function confirmGift() {
+            const type = document.getElementById('giftType').value;
+            const amount = parseFloat(document.getElementById('giftAmount').value);
+            
+            if (!amount || amount <= 0) {
+                showToast('Enter a valid amount', true);
+                return;
+            }
+            
+            let res;
+            if (type === 'balance') {
+                res = await fetch(`/api/admin/add-balance/${selectedUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+            } else {
+                const tier = document.getElementById('giftTier').value;
+                res = await fetch(`/api/admin/add-time/${selectedUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hours: amount, tier: parseInt(tier) })
+                });
+            }
+            
+            if (res.ok) {
+                showToast('Gift sent!');
+                loadUsers();
+            } else {
+                showToast('Failed to gift', true);
+            }
+            
+            closeModal('giftModal');
+        }
+        
+        async function resetUserHWID() {
+            const res = await fetch(`/api/admin/reset-hwid/${selectedUserId}`, { method: 'POST' });
+            if (res.ok) {
+                showToast('HWID reset!');
+                loadUsers();
+                closeModal('viewModal');
+            }
+        }
+        
+        async function clearUserWarnings() {
+            const res = await fetch(`/api/admin/clear-warnings/${selectedUserId}`, { method: 'POST' });
+            if (res.ok) {
+                showToast('Warnings cleared!');
+                loadUsers();
+                closeModal('viewModal');
+            }
+        }
+        
+        async function unbanUser() {
+            if (!confirm('Unban this user? This will remove their HWID from the ban list and clear their warnings.')) return;
+            
+            const res = await fetch(`/api/admin/unban-user/${selectedUserId}`, { method: 'POST' });
+            const data = await res.json();
+            
+            if (data.success) {
+                showToast('User unbanned! HWID and warnings cleared.');
+                loadUsers();
+                loadStats();
+                closeModal('viewModal');
+            } else {
+                showToast(data.error || 'Failed to unban', true);
+            }
+        }
+        
+        async function removeSubscription() {
+            if (!confirm('Remove this user\'s entire subscription?')) return;
+            
+            const res = await fetch(`/api/admin/remove-subscription/${selectedUserId}`, { method: 'POST' });
+            if (res.ok) {
+                showToast('Subscription removed!');
+                loadUsers();
+                closeModal('viewModal');
+            } else {
+                showToast('Failed to remove subscription', true);
+            }
+        }
+        
+        function removeHours() {
+            const user = users.find(u => u.id === selectedUserId);
+            document.getElementById('removeHoursUsername').textContent = user.username;
+            document.getElementById('removeHoursAmount').value = '';
+            closeModal('viewModal');
+            document.getElementById('removeHoursModal').classList.add('active');
+        }
+        
+        async function confirmRemoveHours() {
+            const hours = parseFloat(document.getElementById('removeHoursAmount').value);
+            
+            if (!hours || hours <= 0) {
+                showToast('Enter valid hours', true);
+                return;
+            }
+            
+            const res = await fetch(`/api/admin/remove-hours/${selectedUserId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hours })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                showToast(`Removed ${hours}h! New total: ${formatHours(parseFloat(data.hours_remaining))}`);
+                loadUsers();
+            } else {
+                showToast('Failed to remove hours', true);
+            }
+            
+            closeModal('removeHoursModal');
+        }
+        
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+        
+        // Gift type change handler
+        document.getElementById('giftType').addEventListener('change', (e) => {
+            document.getElementById('giftTier').style.display = e.target.value === 'time' ? 'block' : 'none';
+            document.getElementById('giftAmount').placeholder = e.target.value === 'time' ? 'Hours to add' : 'Amount ($)';
+        });
+        
+        // Search handler
+        document.getElementById('searchInput').addEventListener('input', renderUsers);
+        
+        // Plan configuration
+        function togglePlansConfig() {
+            const content = document.getElementById('plansConfigContent');
+            const icon = document.getElementById('plansToggleIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.add('open');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('open');
+            }
+        }
+        
+        // Parse value string (e.g., "50M" -> 50000000, "1B" -> 1000000000)
+        function parseValueString(str) {
+            if (!str) return 0;
+            str = str.toString().toUpperCase().trim();
+            
+            let multiplier = 1;
+            if (str.endsWith('B')) {
+                multiplier = 1000000000;
+                str = str.slice(0, -1);
+            } else if (str.endsWith('M')) {
+                multiplier = 1000000;
+                str = str.slice(0, -1);
+            } else if (str.endsWith('K')) {
+                multiplier = 1000;
+                str = str.slice(0, -1);
+            }
+            
+            return parseFloat(str) * multiplier || 0;
+        }
+        
+        // Format value to string (e.g., 50000000 -> "50M")
+        function formatValueString(num) {
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(num % 1000000000 === 0 ? 0 : 1) + 'B';
+            } else if (num >= 1000000) {
+                return (num / 1000000).toFixed(num % 1000000 === 0 ? 0 : 1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(num % 1000 === 0 ? 0 : 1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        // Track plan enabled states
+        let planEnabled = { 1: true, 2: true, 3: true, 4: true, 5: true };
+        
+        async function loadPlans() {
+            try {
+                const res = await fetch('/api/admin/plans');
+                const data = await res.json();
+                const plans = data.plans || data;
+                
+                for (let tier = 1; tier <= 5; tier++) {
+                    const plan = plans[tier];
+                    if (plan) {
+                        document.getElementById(`plan${tier}Name`).value = plan.name || '';
+                        document.getElementById(`plan${tier}Price`).value = plan.price || 0;
+                        // Handle infinity for max value
+                        const maxVal = plan.maxValue;
+                        if (maxVal === Infinity || maxVal === 'Infinity' || !maxVal) {
+                            document.getElementById(`plan${tier}MaxValue`).value = '∞';
+                        } else {
+                            document.getElementById(`plan${tier}MaxValue`).value = formatValueString(maxVal);
+                        }
+                        document.getElementById(`plan${tier}Slots`).value = plan.slots || (tier === 5 ? 1 : 2);
+                        
+                        // Load enabled state
+                        planEnabled[tier] = plan.enabled !== false;
+                        updatePlanToggleUI(tier);
+                    }
+                }
+                
+                // Load global min hours
+                document.getElementById('globalMinHours').value = data.globalMinHours || 2;
+            } catch (e) {
+                console.error('Failed to load plans:', e);
+            }
+        }
+        
+        function togglePlanEnabled(tier) {
+            planEnabled[tier] = !planEnabled[tier];
+            updatePlanToggleUI(tier);
+        }
+        
+        function updatePlanToggleUI(tier) {
+            const btn = document.getElementById(`plan${tier}Toggle`);
+            const card = document.getElementById(`planCard${tier}`);
+            
+            if (planEnabled[tier]) {
+                btn.className = 'plan-toggle-btn enabled';
+                btn.textContent = '✓';
+                btn.title = 'Click to disable';
+                card.classList.remove('plan-disabled');
+            } else {
+                btn.className = 'plan-toggle-btn disabled';
+                btn.textContent = '✗';
+                btn.title = 'Click to enable';
+                card.classList.add('plan-disabled');
+            }
+        }
+        
+        function adjustGlobalMinHours(delta) {
+            const input = document.getElementById('globalMinHours');
+            let current = parseFloat(input.value) || 2;
+            current += delta;
+            
+            if (current < 0.5) current = 0.5;
+            if (current > 24) current = 24;
+            
+            input.value = current;
+        }
+        
+        function adjustSlots(tier, delta) {
+            const input = document.getElementById(`plan${tier}Slots`);
+            let current = parseInt(input.value) || 1;
+            current += delta;
+            
+            // Keep within bounds
+            if (current < 1) current = 1;
+            if (current > 100) current = 100;
+            
+            input.value = current;
+        }
+        
+        async function savePlans() {
+            const plans = {};
+            
+            for (let tier = 1; tier <= 5; tier++) {
+                const maxValStr = document.getElementById(`plan${tier}MaxValue`).value;
+                // Handle infinity symbol
+                const maxValue = (maxValStr === '∞' || maxValStr.toLowerCase() === 'infinity' || maxValStr === '') 
+                    ? 'Infinity' 
+                    : parseValueString(maxValStr);
+                
+                plans[tier] = {
+                    name: document.getElementById(`plan${tier}Name`).value,
+                    price: parseFloat(document.getElementById(`plan${tier}Price`).value) || 0,
+                    maxValue: maxValue,
+                    slots: parseInt(document.getElementById(`plan${tier}Slots`).value) || (tier === 5 ? 1 : 2),
+                    enabled: planEnabled[tier]
+                };
+            }
+            
+            const globalMinHours = parseFloat(document.getElementById('globalMinHours').value) || 2;
+            
+            try {
+                const res = await fetch('/api/admin/plans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plans, globalMinHours })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Plan configuration saved! Dashboard will update on refresh.');
+                    // Reload plans to confirm save
+                    loadPlans();
+                } else {
+                    showToast(data.error || 'Failed to save', true);
+                }
+            } catch (e) {
+                showToast('Error saving plans', true);
+            }
+        }
+        
+        // ============================================================
+        // VPS TRACKING SYSTEM
+        // ============================================================
+        
+        function toggleVps() {
+            const body = document.getElementById('vpsBody');
+            const icon = document.getElementById('vpsToggle');
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                icon.textContent = '▲';
+                loadVpsStatus();
+            } else {
+                body.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        async function loadVpsStatus() {
+            try {
+                const res = await fetch('/api/admin/vps');
+                const data = await res.json();
+                
+                // Update totals
+                document.getElementById('vpsTotalBots').textContent = data.totals.totalBots;
+                document.getElementById('vpsTotalHopping').textContent = data.totals.hopping;
+                document.getElementById('vpsTotalIdle').textContent = data.totals.idle;
+                document.getElementById('vpsTotalOffline').textContent = data.totals.offline;
+                document.getElementById('vpsOnlinePercent').textContent = data.totals.onlinePercent;
+                document.getElementById('vpsHoppingPercent').textContent = data.totals.hoppingPercent;
+                document.getElementById('vpsProgressBar').style.width = data.totals.hoppingPercent + '%';
+                
+                // Render VPS cards
+                const container = document.getElementById('vpsList');
+                container.innerHTML = data.vps.map(vps => {
+                    const statusColor = vps.online === 0 ? '#ff4444' : vps.hoppingPercent > 50 ? '#00ff88' : '#ffaa00';
+                    return `
+                        <div style="background:#0d0d1a;padding:15px;border-radius:10px;border:1px solid #333;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                <input type="text" value="${vps.name}" onchange="updateVps(${vps.id},'name',this.value)" style="background:transparent;border:none;color:#fff;font-size:16px;font-weight:bold;width:120px;">
+                                <span style="color:${statusColor};font-size:20px;font-weight:bold;">${vps.hoppingPercent}%</span>
+                            </div>
+                            <div style="display:flex;gap:5px;margin-bottom:10px;">
+                                <span style="background:#00ff88;color:#000;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;">⚡ ${vps.hopping}</span>
+                                <span style="background:#666;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;">💤 ${vps.idle}</span>
+                                <span style="background:#ff4444;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;">❌ ${vps.offline}</span>
+                            </div>
+                            <div style="background:#333;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+                                <div style="height:100%;background:#00ff88;width:${vps.hoppingPercent}%;"></div>
+                            </div>
+                            <div style="display:flex;gap:10px;align-items:center;">
+                                <label style="color:#888;font-size:12px;">Bots:</label>
+                                <input type="number" value="${vps.bots}" min="1" max="100" onchange="updateVps(${vps.id},'bots',this.value)" style="width:60px;padding:5px;background:#1a1a2e;border:1px solid #333;color:#fff;border-radius:4px;">
+                                <button onclick="deleteVps(${vps.id})" style="margin-left:auto;background:#ff4444;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (e) {
+                console.error('Failed to load VPS status', e);
+            }
+        }
+        
+        async function updateVps(vpsId, field, value) {
+            try {
+                const body = {};
+                body[field] = value;
+                
+                await fetch(`/api/admin/vps/${vpsId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                showToast('VPS updated');
+            } catch (e) {
+                showToast('Failed to update VPS', true);
+            }
+        }
+        
+        async function addVps() {
+            const name = prompt('VPS Name:', 'VPS ' + (document.querySelectorAll('#vpsList > div').length + 1));
+            if (!name) return;
+            
+            const bots = prompt('Number of bots:', '25');
+            if (!bots) return;
+            
+            try {
+                const res = await fetch('/api/admin/vps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, bots: parseInt(bots) })
+                });
+                
+                if (res.ok) {
+                    showToast('VPS added!');
+                    loadVpsStatus();
+                } else {
+                    showToast('Failed to add VPS', true);
+                }
+            } catch (e) {
+                showToast('Error adding VPS', true);
+            }
+        }
+        
+        async function deleteVps(vpsId) {
+            if (!confirm('Delete this VPS?')) return;
+            
+            try {
+                await fetch(`/api/admin/vps/${vpsId}`, { method: 'DELETE' });
+                showToast('VPS deleted');
+                loadVpsStatus();
+            } catch (e) {
+                showToast('Failed to delete VPS', true);
+            }
+        }
+        
+        // Auto-refresh VPS status every 10 seconds when panel is open
+        setInterval(() => {
+            if (document.getElementById('vpsBody').style.display !== 'none') {
+                loadVpsStatus();
+            }
+        }, 10000);
+        
+        // ============================================================
+        // PAYMENTS SYSTEM
+        // ============================================================
+        
+        function togglePayments() {
+            const body = document.getElementById('paymentsBody');
+            const icon = document.getElementById('paymentsToggle');
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                icon.textContent = '▲';
+                loadPayments();
+            } else {
+                body.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        async function loadPayments() {
+            try {
+                const res = await fetch('/api/admin/payments');
+                const payments = await res.json();
+                
+                document.getElementById('pendingCount').textContent = payments.length;
+                
+                const container = document.getElementById('paymentsList');
+                
+                if (payments.length === 0) {
+                    container.innerHTML = '<p style="color:#666;text-align:center;padding:20px;">No pending payments</p>';
+                    return;
+                }
+                
+                container.innerHTML = payments.map(p => {
+                    const time = new Date(p.submitted_at).toLocaleString();
+                    const cryptoColors = { btc: '#f7931a', ltc: '#bfbbbb', eth: '#627eea' };
+                    return `
+                        <div style="background:#0d0d1a;padding:15px;border-radius:10px;border:1px solid #333;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                <span style="color:${cryptoColors[p.crypto] || '#888'};font-weight:bold;">${p.crypto?.toUpperCase() || 'CRYPTO'}</span>
+                                <span style="color:#00d4ff;font-size:20px;font-weight:bold;">$${p.amount.toFixed(2)}</span>
+                            </div>
+                            <div style="margin-bottom:10px;">
+                                <span style="color:#888;">User:</span> <span style="color:#fff;">${p.username}</span><br>
+                                <span style="color:#888;">TX ID:</span> <code style="color:#aaa;font-size:11px;word-break:break-all;">${p.txId}</code><br>
+                                <span style="color:#888;">Time:</span> <span style="color:#666;">${time}</span>
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <button onclick="approvePayment('${p.id}')" style="flex:1;padding:10px;background:#00ff88;color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">✅ Approve</button>
+                                <button onclick="denyPayment('${p.id}')" style="flex:1;padding:10px;background:#ff4444;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">❌ Deny</button>
+                            </div>
+                            <div style="margin-top:10px;text-align:center;">
+                                <a href="https://blockchair.com/search?q=${p.txId}" target="_blank" style="color:#00d4ff;font-size:12px;">🔍 Verify on Blockchain</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (e) {
+                console.error('Failed to load payments', e);
+            }
+        }
+        
+        async function approvePayment(paymentId) {
+            if (!confirm('Approve this payment and add balance to user?')) return;
+            
+            try {
+                const res = await fetch(`/api/admin/payments/${paymentId}/approve`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Payment approved! Balance added.');
+                    loadPayments();
+                    loadUsers();
+                } else {
+                    showToast(data.error || 'Failed to approve', true);
+                }
+            } catch (e) {
+                showToast('Error approving payment', true);
+            }
+        }
+        
+        async function denyPayment(paymentId) {
+            const reason = prompt('Reason for denial (optional):');
+            
+            try {
+                const res = await fetch(`/api/admin/payments/${paymentId}/deny`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Payment denied.');
+                    loadPayments();
+                } else {
+                    showToast(data.error || 'Failed to deny', true);
+                }
+            } catch (e) {
+                showToast('Error denying payment', true);
+            }
+        }
+        
+        // Init
+        loadStats();
+        loadUsers();
+        loadPauseStatus();
+        loadPlans();
+        loadPayments();
+        
+        // Refresh every 30 seconds
+        setInterval(() => { loadStats(); loadUsers(); loadPauseStatus(); loadPayments(); }, 30000);
+    </script>
+</body>
+</html>
+

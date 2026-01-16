@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Ultra Notifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard {
+            padding: 180px 50px 100px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-primary);
+        }
+        
+        .user-details h1 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: var(--text-muted);
+        }
+        
+        .balance-display {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 255, 0.1));
+            border: 2px solid var(--accent-primary);
+            border-radius: 16px;
+            padding: 20px 30px;
+            text-align: center;
+        }
+        
+        .balance-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .balance-amount {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--accent-primary);
+        }
+        
+        .btn-add-balance {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .btn-add-balance:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        .btn-config {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 8px;
+            color: var(--accent-secondary);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .btn-config:hover {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+        }
+        
+        .dash-card h3 {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .dash-card .value {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .key-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .key-section h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--accent-primary);
+        }
+        
+        .key-display {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .key-box {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-family: monospace;
+            font-size: 16px;
+            color: var(--accent-primary);
+            letter-spacing: 2px;
+            position: relative;
+        }
+        
+        .key-hidden {
+            color: transparent;
+            text-shadow: 0 0 12px var(--accent-primary);
+            user-select: none;
+        }
+        
+        .btn-eye {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-eye:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .btn-eye.showing {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .btn-copy, .btn-reset {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+            font-size: 14px;
+        }
+        
+        .btn-copy {
+            background: var(--accent-gradient);
+            color: var(--bg-primary);
+        }
+        
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        .btn-reset {
+            background: transparent;
+            border: 2px solid #ff4444;
+            color: #ff4444;
+        }
+        
+        .btn-reset:hover {
+            background: #ff4444;
+            color: white;
+        }
+        
+        /* Extend Plan Section */
+        .extend-plan-section {
+            margin-bottom: 25px;
+        }
+        
+        .extend-plan-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 204, 255, 0.08));
+            border: 2px solid var(--accent-primary);
+            border-radius: 16px;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .extend-plan-info h3 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            color: var(--accent-primary);
+            margin-bottom: 4px;
+        }
+        
+        .extend-plan-info p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .extend-plan-info span {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+        
+        .extend-plan-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .extend-hours-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 6px 10px;
+        }
+        
+        .extend-hours-input input {
+            width: 50px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .extend-hours-input input::-webkit-outer-spin-button,
+        .extend-hours-input input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .extend-hours-input .hours-label {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .btn-adjust {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-adjust:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+        
+        .extend-cost {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--accent-primary);
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .btn-extend {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-extend:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+        }
+        
+        .btn-extend:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .extend-paused-notice {
+            background: rgba(255, 68, 68, 0.15);
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin-top: 12px;
+            color: #ff4444;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .subscription-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .subscription-section h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .sub-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .sub-plan {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .plan-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .plan-icon.bronze { background: rgba(205, 127, 50, 0.2); }
+        .plan-icon.silver { background: rgba(192, 192, 192, 0.2); }
+        .plan-icon.gold { background: rgba(255, 215, 0, 0.2); }
+        .plan-icon.diamond { background: rgba(185, 242, 255, 0.2); }
+        .plan-icon.none { background: rgba(255, 255, 255, 0.1); }
+        
+        .plan-details h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .plan-details p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .sub-time {
+            text-align: right;
+        }
+        
+        .sub-time .expires {
+            font-family: var(--font-display);
+            font-size: 16px;
+            color: var(--accent-primary);
+        }
+        
+        .sub-time .label {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .buy-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .tier-select {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tier-option {
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        
+        .tier-option:hover {
+            transform: translateY(-3px);
+        }
+        
+        .tier-option.selected {
+            border-width: 3px;
+        }
+        
+        .tier-option.bronze { border-color: var(--bronze); }
+        .tier-option.bronze.selected { background: rgba(205, 127, 50, 0.2); }
+        .tier-option.silver { border-color: var(--silver); }
+        .tier-option.silver.selected { background: rgba(192, 192, 192, 0.2); }
+        .tier-option.gold { border-color: var(--gold); }
+        .tier-option.gold.selected { background: rgba(255, 215, 0, 0.2); }
+        .tier-option.diamond { border-color: var(--diamond); }
+        .tier-option.diamond.selected { background: rgba(185, 242, 255, 0.2); }
+        .tier-option.diamond-private { border-color: #FF00FF; background: linear-gradient(135deg, rgba(255, 0, 255, 0.05), rgba(138, 43, 226, 0.05)); }
+        .tier-option.diamond-private.selected { background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(138, 43, 226, 0.2)); }
+        .tier-option.diamond-private .tier-info { color: #FF00FF; }
+        
+        .tier-option .tier-name {
+            font-weight: 700;
+            font-size: 13px;
+        }
+        
+        .tier-option .tier-info {
+            font-size: 12px;
+            color: var(--accent-primary);
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        
+        .tier-option.bronze .tier-info { color: var(--bronze); }
+        .tier-option.silver .tier-info { color: var(--silver); }
+        .tier-option.gold .tier-info { color: var(--gold); }
+        .tier-option.diamond .tier-info { color: var(--diamond); }
+        
+        .tier-option .tier-price {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+        
+        .tier-option .tier-slots {
+            font-size: 10px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-top: 6px;
+            padding: 4px 10px;
+            background: rgba(0, 255, 136, 0.15);
+            border-radius: 6px;
+            display: inline-block;
+            line-height: 1.4;
+        }
+        
+        .tier-option .tier-slots.available {
+            color: var(--accent-primary);
+            background: rgba(0, 255, 136, 0.15);
+        }
+        
+        .tier-option .tier-slots.full {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.15);
+            padding: 6px 10px;
+        }
+        
+        .tier-option.tier-full {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .tier-option.tier-full::after {
+            content: 'SOLD OUT';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background: #ff4444;
+            color: white;
+            padding: 5px 15px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+        
+        .hours-input-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .hours-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        
+        .hours-input {
+            width: 100%;
+            padding: 15px 20px;
+            padding-right: 50px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .hours-input:focus {
+            border-color: var(--accent-primary);
+        }
+        
+        .hours-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        
+        .hours-suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .quick-hours {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .quick-hour-btn {
+            padding: 10px 15px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-hour-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .cost-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .cost-label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .cost-value {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        .btn-subscribe {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-subscribe:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .btn-subscribe:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .script-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .script-section h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--accent-primary);
+        }
+        
+        .script-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--accent-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        /* Ready Script Section */
+        .ready-script-section {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 204, 255, 0.05));
+            border: 2px solid var(--accent-primary);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .ready-script-section h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: var(--accent-primary);
+        }
+        
+        .ready-script-section .subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        .ready-script-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: left;
+            position: relative;
+        }
+        
+        .ready-script-code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            color: var(--accent-secondary);
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .ready-script-code .key-masked {
+            color: var(--accent-primary);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        
+        .ready-script-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+            gap: 10px;
+        }
+        
+        .btn-copy-script {
+            padding: 12px 30px;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: 10px;
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-copy-script:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+        }
+        
+        .copy-success {
+            animation: copyPulse 0.5s ease;
+        }
+        
+        @keyframes copyPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Slot progress bar */
+        .slot-progress {
+            margin-top: 10px;
+        }
+        
+        .slot-progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .slot-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+            box-shadow: 0 0 8px currentColor;
+        }
+        
+        .slot-next-time {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-secondary);
+            margin-top: 6px;
+            text-align: center;
+            background: rgba(0, 204, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 204, 255, 0.3);
+        }
+        
+        /* Paused banner */
+        .paused-banner {
+            background: linear-gradient(135deg, rgba(255, 136, 0, 0.15), rgba(255, 68, 68, 0.15));
+            border: 2px solid #ff8800;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .paused-banner-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .paused-banner-icon {
+            font-size: 30px;
+        }
+        
+        .paused-banner-info strong {
+            color: #ff8800;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .paused-banner-info p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 0;
+        }
+        
+        .btn-unpause {
+            padding: 12px 25px;
+            background: #ff8800;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-unpause:hover {
+            background: #ff9922;
+            transform: translateY(-2px);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .logout-btn {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            color: #ff4444;
+        }
+        
+        .warnings-banner {
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 150, 50, 0.15));
+            border: 2px solid #ff4444;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .warnings-icon {
+            font-size: 40px;
+        }
+        
+        .warnings-text strong {
+            color: #ff4444;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .warnings-text p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .insufficient {
+            color: #ff4444 !important;
+        }
+        
+        .sales-closed-notice {
+            background: linear-gradient(135deg, rgba(255, 136, 0, 0.15), rgba(255, 68, 68, 0.15));
+            border: 2px solid #ff8800;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .sales-closed-notice h3 {
+            color: #ff8800;
+            font-family: var(--font-display);
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .sales-closed-notice p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .buy-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tier-select {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Live Logs Ticker -->
+    <div class="live-logs-container">
+        <div class="live-indicator">
+            <span class="pulse"></span>
+            LIVE FINDS
+        </div>
+        <div class="logs-ticker" id="logsTicker"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">ULTRA NOTIFIER</span>
+        </a>
+        <div class="nav-links">
+            <a href="/#plans">Plans</a>
+            <a href="/admin" id="adminLink" style="display: none; color: #ff4444; font-weight: 700;">🔒 Admin</a>
+            <a href="/auth/logout" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div class="user-info">
+                <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                <div class="user-details">
+                    <h1>Welcome, <span id="userName">Loading...</span></h1>
+                    <p>Manage your Ultra Notifier subscription</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="balance-display">
+                    <div class="balance-label">Your Balance</div>
+                    <div class="balance-amount">$<span id="userBalance">0.00</span></div>
+                    <button class="btn-add-balance" onclick="addBalance()">+ Add Balance</button>
+                </div>
+                <a href="/config" class="btn-config" style="padding: 15px 20px; font-size: 16px;">⚙️ Config</a>
+            </div>
+        </div>
+
+        <!-- Warnings Banner (hidden by default) -->
+        <div class="warnings-banner" id="warningsBanner" style="display: none;">
+            <div class="warnings-icon" id="warningsIcon">⚠️</div>
+            <div class="warnings-text">
+                <strong id="warningsTitle">You have <span id="warningsCount">0</span> warning(s)</strong>
+                <p id="warningsSubtext">2 warnings = permanent HWID ban</p>
+            </div>
+        </div>
+
+        <!-- Paused Banner (hidden by default) -->
+        <div class="paused-banner" id="pausedBanner" style="display: none;">
+            <div class="paused-banner-text">
+                <div class="paused-banner-icon">⏸️</div>
+                <div class="paused-banner-info">
+                    <strong id="pausedTitle">Your Plan is Paused</strong>
+                    <p id="pausedMessage">Your subscription has been temporarily paused by an admin. Contact support if you have questions.</p>
+                </div>
+            </div>
+            <button class="btn-unpause" id="unpauseBtn" onclick="unpausePlan()">Unpause Plan</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <h3>Current Plan</h3>
+                <div class="value" id="currentPlan">None</div>
+            </div>
+            <div class="dash-card">
+                <h3>Value Range</h3>
+                <div class="value" id="minValue">-</div>
+            </div>
+            <div class="dash-card">
+                <h3>Time Left</h3>
+                <div class="value" id="timeRemaining">-</div>
+            </div>
+            <div class="dash-card">
+                <h3>Warnings</h3>
+                <div class="value" id="userWarnings" style="color: #ff4444;">0/2</div>
+            </div>
+        </div>
+        
+        <!-- Extend Plan Section (visible only when user has active plan) -->
+        <div class="extend-plan-section" id="extendPlanSection" style="display: none;">
+            <div class="extend-plan-card">
+                <div class="extend-plan-info">
+                    <h3>⚡ Extend Your Plan</h3>
+                    <p>Add more hours to your current <span id="extendPlanName">-</span> subscription</p>
+                </div>
+                <div class="extend-plan-controls">
+                    <div class="extend-hours-input">
+                        <button class="btn-adjust" onclick="adjustExtendHours(-1)">−</button>
+                        <input type="number" id="extendHoursInput" value="2" min="1" max="168" step="1">
+                        <button class="btn-adjust" onclick="adjustExtendHours(1)">+</button>
+                        <span class="hours-label">hours</span>
+                    </div>
+                    <div class="extend-cost">
+                        <span id="extendCost">$0.00</span>
+                    </div>
+                    <button class="btn-extend" id="extendBtn" onclick="extendPlan()">
+                        <span>🚀 Extend</span>
+                    </button>
+                </div>
+            </div>
+            <div class="extend-paused-notice" id="extendPausedNotice" style="display: none;">
+                ⚠️ Extension disabled while your plan is paused
+            </div>
+        </div>
+
+        <!-- License Key -->
+        <div class="key-section">
+            <h2>🔑 Your License Key</h2>
+            <div class="key-display">
+                <div class="key-box key-hidden" id="licenseKey">ULTRA-XXXX-XXXX-XXXX-XXXX</div>
+                <button class="btn-eye" id="eyeBtn" onclick="toggleKeyVisibility()">👁️</button>
+                <button class="btn-copy" onclick="copyKey()">Copy</button>
+                <button class="btn-reset" onclick="resetHWID()">Reset HWID</button>
+            </div>
+        </div>
+
+        <!-- Subscription -->
+        <div class="subscription-section">
+            <h2>💎 Buy Subscription Time</h2>
+
+            <!-- Global Paused Notice (hidden by default) -->
+            <div class="sales-closed-notice" id="globalPausedNotice" style="display: none; border-color: #ff4444;">
+                <h3>⏸️ All Plans Currently Paused</h3>
+                <p>All subscriptions are temporarily paused by admin. New purchases are disabled. Please check back later!</p>
+            </div>
+            
+            <!-- Sales Closed Notice (hidden by default) -->
+            <div class="sales-closed-notice" id="salesClosedNotice" style="display: none;">
+                <h3>🚫 Sales Currently Closed</h3>
+                <p>New subscriptions are temporarily unavailable. Existing subscriptions continue to work normally. Please check back later!</p>
+            </div>
+
+            <div class="buy-section" id="buySection">
+                <h3>1. Select Plan Tier</h3>
+                <div class="tier-select" id="tierSelect">
+                    <div class="tier-option bronze" data-tier="1" onclick="selectTier(1)">
+                        <div class="tier-name">BRONZE</div>
+                        <div class="tier-info">0 - 50M</div>
+                        <div class="tier-price">$1.00/hr • 2 slots</div>
+                        <div class="tier-slots" id="slots-1">0/2 available</div>
+                    </div>
+                    <div class="tier-option silver" data-tier="2" onclick="selectTier(2)">
+                        <div class="tier-name">SILVER</div>
+                        <div class="tier-info">0 - 200M</div>
+                        <div class="tier-price">$2.00/hr • 2 slots</div>
+                        <div class="tier-slots" id="slots-2">0/2 available</div>
+                    </div>
+                    <div class="tier-option gold selected" data-tier="3" onclick="selectTier(3)">
+                        <div class="tier-name">GOLD</div>
+                        <div class="tier-info">0 - 400M</div>
+                        <div class="tier-price">$3.50/hr • 4 slots</div>
+                        <div class="tier-slots" id="slots-3">0/4 available</div>
+                    </div>
+                    <div class="tier-option diamond" data-tier="4" onclick="selectTier(4)">
+                        <div class="tier-name">DIAMOND</div>
+                        <div class="tier-info">0 - 1B+</div>
+                        <div class="tier-price">$4.25/hr • 2 slots</div>
+                        <div class="tier-slots" id="slots-4">0/2 available</div>
+                    </div>
+                    <div class="tier-option diamond-private" data-tier="5" onclick="selectTier(5)" id="diamondPrivateTier" style="display: none;">
+                        <div class="tier-name">👑 PRIVATE</div>
+                        <div class="tier-info">0 - 1B+</div>
+                        <div class="tier-price">$5.00/hr • 1 slot</div>
+                        <div class="tier-slots" id="slots-5">0/1 available</div>
+                    </div>
+                </div>
+
+                <h3>2. Enter Hours (minimum 2 hours)</h3>
+                <div class="hours-input-section">
+                    <div class="hours-input-wrapper">
+                        <input type="number" class="hours-input" id="hoursInput" 
+                               value="2" min="2" max="168" step="0.5" 
+                               placeholder="Min 2 hours" onchange="updateCost()" oninput="updateCost()">
+                        <span class="hours-suffix">hours</span>
+                    </div>
+                    <div class="quick-hours">
+                        <button class="quick-hour-btn" onclick="setHours(2)">2h</button>
+                        <button class="quick-hour-btn" onclick="setHours(6)">6h</button>
+                        <button class="quick-hour-btn" onclick="setHours(24)">24h</button>
+                        <button class="quick-hour-btn" onclick="setHours(72)">3d</button>
+                    </div>
+                </div>
+
+                <div class="cost-display">
+                    <span class="cost-label">Total Cost</span>
+                    <span class="cost-value" id="totalCost">$2.00</span>
+                </div>
+
+                <button class="btn-subscribe" id="subscribeBtn" onclick="subscribe()">
+                    Use Balance to Subscribe
+                </button>
+            </div>
+        </div>
+
+        <!-- Ready Script with Key -->
+        <div class="ready-script-section">
+            <h2>🚀 Ready-to-Use Script</h2>
+            <p class="subtitle">Your key is already embedded - just copy and paste into your executor!</p>
+            <div class="ready-script-box">
+                <div class="ready-script-code" id="readyScriptDisplay">
+<span style="color: #6a9955;">-- Ultra Notifier - Auto-Authenticated Script</span>
+<span style="color: #6a9955;">-- DO NOT SHARE THIS SCRIPT</span>
+
+getgenv().LICENSE_KEY = '<span class="key-masked" id="maskedKey">••••••••••••••••••••</span>'
+loadstring(game:HttpGet("https://gist.githubusercontent.com/yoyoraed000-afk/3505b64e62eb570fd49c114ead1c3e65/raw"))()
+                </div>
+                <div class="ready-script-buttons">
+                    <button class="btn-copy-script" id="copyReadyScriptBtn" onclick="copyReadyScript()">
+                        📋 Copy Script
+                    </button>
+                </div>
+            </div>
+            <!-- Hidden script template (not visible) -->
+            <div id="readyScriptContent" style="display: none;"></div>
+        </div>
+
+        <!-- Basic Loader Script -->
+        <div class="script-section">
+            <h2>📜 Basic Loader</h2>
+            <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 14px;">Alternative: Use this loader and enter your key manually:</p>
+            <div class="script-box" id="loaderScript">getgenv().LICENSE_KEY = "YOUR_KEY_HERE"
+loadstring(game:HttpGet("https://gist.githubusercontent.com/yoyoraed000-afk/3505b64e62eb570fd49c114ead1c3e65/raw"))()</div>
+            <button class="btn-copy" style="margin-top: 12px;" onclick="copyScript()">Copy Script</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Copied!</div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        let userData = null;
+        let selectedTier = 3;
+        
+        // Dynamic plan data (loaded from server)
+        let tierPrices = { 1: 1.00, 2: 2.00, 3: 3.50, 4: 4.25, 5: 5.00 };
+        let tierSlots = { 1: 2, 2: 2, 3: 4, 4: 2, 5: 1 };
+        let tierNames = { 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Diamond', 5: 'Diamond Private' };
+        const tierIcons = { 1: '🥉', 2: '🥈', 3: '🥇', 4: '💎', 5: '👑' };
+        let tierRanges = { 1: '0 - 50M', 2: '0 - 200M', 3: '0 - 400M', 4: '0 - 1B+', 5: '0 - 1B+' };
+        let tierEnabled = { 1: true, 2: true, 3: true, 4: true, 5: true };
+        let isAdmin = false;
+        
+        // Format maxValue for display as range
+        function formatRange(maxValue) {
+            if (maxValue === Infinity || maxValue === 'Infinity' || !maxValue) {
+                return '0 - 1B+';
+            } else if (maxValue >= 1000000000) {
+                return '0 - ' + (maxValue / 1000000000).toFixed(maxValue % 1000000000 === 0 ? 0 : 1) + 'B';
+            } else if (maxValue >= 1000000) {
+                return '0 - ' + (maxValue / 1000000).toFixed(maxValue % 1000000 === 0 ? 0 : 1) + 'M';
+            }
+            return '0 - ' + maxValue;
+        }
+        
+        // Global minimum hours
+        let globalMinHours = 2;
+        
+        // Load plan configuration from server
+        async function loadPlans() {
+            try {
+                // Add cache-busting to ensure fresh data
+                const res = await fetch('/api/plans?_=' + Date.now());
+                const data = await res.json();
+                const plans = data.plans || data;
+                
+                console.log('[Dashboard] Loaded plans:', plans);
+                
+                // Update global min hours
+                globalMinHours = data.globalMinHours || 2;
+                
+                // Update pause/sales status
+                globalPaused = data.globalPaused || false;
+                salesClosed = data.salesClosed || false;
+                
+                for (let tier = 1; tier <= 5; tier++) {
+                    // Handle both numeric and string keys from JSON
+                    const plan = plans[tier] || plans[tier.toString()];
+                    if (plan) {
+                        tierPrices[tier] = parseFloat(plan.price) || tierPrices[tier];
+                        tierSlots[tier] = parseInt(plan.slots) || tierSlots[tier];
+                        tierNames[tier] = plan.name || tierNames[tier];
+                        tierRanges[tier] = formatRange(plan.maxValue);
+                        tierEnabled[tier] = plan.enabled !== false;
+                        console.log(`[Dashboard] Tier ${tier}: $${tierPrices[tier]}/hr, ${tierSlots[tier]} slots, range: ${tierRanges[tier]}`);
+                    }
+                }
+                
+                // Update the tier cards with new data and visibility
+                updateTierCards();
+                updateTierVisibility();
+                
+                // Update the hours input label and minimum
+                const hoursInput = document.getElementById('hoursInput');
+                if (hoursInput) {
+                    hoursInput.min = globalMinHours;
+                    hoursInput.value = Math.max(parseFloat(hoursInput.value) || globalMinHours, globalMinHours);
+                    hoursInput.placeholder = `Min ${globalMinHours} hours`;
+                }
+                
+                // Update the label
+                const hoursLabel = document.querySelector('.buy-section h3:nth-of-type(2)');
+                if (hoursLabel) {
+                    hoursLabel.textContent = `2. Enter Hours (minimum ${globalMinHours} hours)`;
+                }
+                
+                // Update pause/sales UI
+                updatePauseSalesUI();
+                
+                updateCost();
+            } catch (e) {
+                console.error('Failed to load plans:', e);
+            }
+        }
+        
+        function updatePauseSalesUI() {
+            const pauseNotice = document.getElementById('globalPausedNotice');
+            const salesNotice = document.getElementById('salesClosedNotice');
+            const buySection = document.getElementById('buySection');
+            
+            if (globalPaused) {
+                if (pauseNotice) pauseNotice.style.display = 'block';
+                if (salesNotice) salesNotice.style.display = 'none';
+                if (buySection) buySection.classList.add('disabled');
+            } else if (salesClosed) {
+                if (pauseNotice) pauseNotice.style.display = 'none';
+                if (salesNotice) salesNotice.style.display = 'block';
+                if (buySection) buySection.classList.add('disabled');
+            } else {
+                if (pauseNotice) pauseNotice.style.display = 'none';
+                if (salesNotice) salesNotice.style.display = 'none';
+                if (buySection) buySection.classList.remove('disabled');
+            }
+            
+            // Update extend section pause state
+            updateExtendSection();
+        }
+        
+        function updateTierCards() {
+            for (let tier = 1; tier <= 5; tier++) {
+                const card = document.querySelector(`.tier-option[data-tier="${tier}"]`);
+                if (card) {
+                    const nameEl = card.querySelector('.tier-name');
+                    // Keep the crown emoji for tier 5
+                    if (tier === 5) {
+                        nameEl.textContent = '👑 ' + tierNames[tier].toUpperCase().replace('DIAMOND ', '');
+                    } else {
+                        nameEl.textContent = tierNames[tier].toUpperCase();
+                    }
+                    card.querySelector('.tier-info').textContent = tierRanges[tier];
+                    card.querySelector('.tier-price').textContent = `$${tierPrices[tier].toFixed(2)}/hr • ${tierSlots[tier]} slot${tierSlots[tier] > 1 ? 's' : ''}`;
+                }
+            }
+        }
+        
+        function updateTierVisibility() {
+            for (let tier = 1; tier <= 5; tier++) {
+                const card = document.querySelector(`.tier-option[data-tier="${tier}"]`);
+                if (card) {
+                    // Tier 5 has special admin-only logic
+                    if (tier === 5) {
+                        card.style.display = (tierEnabled[tier] && isAdmin) ? 'block' : 'none';
+                    } else {
+                        card.style.display = tierEnabled[tier] ? 'block' : 'none';
+                    }
+                }
+            }
+            
+            // If selected tier is now disabled, select first enabled tier
+            if (!tierEnabled[selectedTier] || (selectedTier === 5 && !isAdmin)) {
+                for (let tier = 1; tier <= 4; tier++) {
+                    if (tierEnabled[tier]) {
+                        selectTier(tier);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        async function loadUser() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                userData = data.user;
+                
+                // Show admin link and private tier if admin
+                if (data.isAdmin) {
+                    isAdmin = true;
+                    document.getElementById('adminLink').style.display = 'inline';
+                    document.getElementById('diamondPrivateTier').style.display = 'block';
+                }
+                
+                updateUI();
+                checkPausedStatus();
+            } catch (error) {
+                console.error('Failed to load user:', error);
+            }
+        }
+        
+        let keyVisible = false;
+        
+        function toggleKeyVisibility() {
+            keyVisible = !keyVisible;
+            const keyBox = document.getElementById('licenseKey');
+            const eyeBtn = document.getElementById('eyeBtn');
+            
+            if (keyVisible) {
+                keyBox.classList.remove('key-hidden');
+                eyeBtn.textContent = '🙈';
+                eyeBtn.classList.add('showing');
+            } else {
+                keyBox.classList.add('key-hidden');
+                eyeBtn.textContent = '👁️';
+                eyeBtn.classList.remove('showing');
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('userName').textContent = userData.username;
+            document.getElementById('userAvatar').src = 
+                `https://cdn.discordapp.com/avatars/${userData.discord_id}/${userData.avatar}.png`;
+            document.getElementById('licenseKey').textContent = userData.license_key;
+            document.getElementById('userBalance').textContent = (userData.balance || 0).toFixed(2);
+            
+            // Update ready script with user's key
+            updateReadyScript();
+            
+            const isActive = userData.subscription_tier > 0 && userData.subscription_expires > Date.now();
+            
+            if (isActive) {
+                const tier = userData.subscription_tier;
+                document.getElementById('currentPlan').textContent = tierNames[tier];
+                document.getElementById('currentPlan').style.color = 
+                    tier === 1 ? '#CD7F32' : tier === 2 ? '#C0C0C0' : tier === 3 ? '#FFD700' : '#B9F2FF';
+                document.getElementById('minValue').textContent = tierRanges[tier];
+                
+                const remaining = (userData.subscription_expires - Date.now()) / 1000;
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                document.getElementById('timeRemaining').textContent = 
+                    hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            } else {
+                document.getElementById('currentPlan').textContent = 'None';
+                document.getElementById('currentPlan').style.color = '#606070';
+                document.getElementById('minValue').textContent = '-';
+                document.getElementById('timeRemaining').textContent = '-';
+            }
+            
+            // Show warnings
+            const warnings = userData.warnings || 0;
+            if (warnings >= 2) {
+                document.getElementById('userWarnings').textContent = 'BANNED';
+                document.getElementById('userWarnings').style.color = '#ff4444';
+            } else {
+                document.getElementById('userWarnings').textContent = `${warnings}/2`;
+                document.getElementById('userWarnings').style.color = warnings > 0 ? '#ff4444' : '#00ff88';
+            }
+            
+            // Show warning banner if user has warnings or is banned
+            if (warnings > 0) {
+                document.getElementById('warningsBanner').style.display = 'flex';
+                
+                if (warnings >= 2) {
+                    // User is BANNED
+                    document.getElementById('warningsIcon').textContent = '🚫';
+                    document.getElementById('warningsTitle').innerHTML = '<span style="color: #ff4444; font-size: 18px;">YOU ARE BANNED</span>';
+                    document.getElementById('warningsSubtext').textContent = 'Your HWID has been permanently blocked due to violations.';
+                    document.getElementById('warningsBanner').style.borderColor = '#ff4444';
+                    document.getElementById('warningsBanner').style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 68, 68, 0.2))';
+                } else {
+                    document.getElementById('warningsCount').textContent = warnings;
+                }
+            }
+            
+            updateCost();
+            updateExtendSection();
+        }
+        
+        function selectTier(tier) {
+            // Don't allow selecting full tiers
+            if (fullTiers[tier]) {
+                showToast(`${tierNames[tier]} slots are full!`, true);
+                return;
+            }
+            
+            selectedTier = tier;
+            document.querySelectorAll('.tier-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`.tier-option[data-tier="${tier}"]`).classList.add('selected');
+            updateCost();
+        }
+        
+        function setHours(hours) {
+            document.getElementById('hoursInput').value = hours;
+            updateCost();
+        }
+        
+        function updateCost() {
+            let hours = parseFloat(document.getElementById('hoursInput').value) || 0;
+            
+            // Round to 1 decimal place
+            hours = Math.round(hours * 10) / 10;
+            
+            const cost = hours * tierPrices[selectedTier];
+            document.getElementById('totalCost').textContent = `$${cost.toFixed(2)}`;
+            
+            // Check if user has enough balance and if tier is available
+            const btn = document.getElementById('subscribeBtn');
+            const costEl = document.getElementById('totalCost');
+            
+            // Check minimum hours
+            if (hours < globalMinHours) {
+                btn.disabled = true;
+                btn.textContent = `Minimum ${globalMinHours} Hours Required`;
+                btn.style.background = '#ff4444';
+                costEl.classList.add('insufficient');
+            }
+            // Check if tier is full
+            else if (fullTiers[selectedTier]) {
+                btn.disabled = true;
+                btn.textContent = `${tierNames[selectedTier]} Slots Full`;
+                btn.style.background = '#ff4444';
+                costEl.classList.add('insufficient');
+            } 
+            // Check balance
+            else if (userData && cost > (userData.balance || 0)) {
+                btn.disabled = true;
+                btn.textContent = 'Insufficient Balance';
+                btn.style.background = '';
+                costEl.classList.add('insufficient');
+            } 
+            // All good
+            else {
+                btn.disabled = false;
+                btn.textContent = 'Use Balance to Subscribe';
+                btn.style.background = '';
+                costEl.classList.remove('insufficient');
+            }
+        }
+        
+        function copyKey() {
+            navigator.clipboard.writeText(userData.license_key);
+            showToast('Key copied!');
+        }
+        
+        function copyScript() {
+            const script = document.getElementById('loaderScript').textContent;
+            navigator.clipboard.writeText(script);
+            showToast('Script copied!');
+        }
+        
+        function updateReadyScript() {
+            if (!userData || !userData.license_key) return;
+            
+            // Update the masked key display (still shows dots)
+            // The actual key is in the hidden content for copying
+            
+            // Create the ready-to-use script with the user's key embedded
+            const readyScript = `getgenv().LICENSE_KEY = "${userData.license_key}"
+
+-- Load the joiner
+loadstring(game:HttpGet("https://gist.githubusercontent.com/yoyoraed000-afk/3505b64e62eb570fd49c114ead1c3e65/raw"))()`;
+            
+            document.getElementById('readyScriptContent').textContent = readyScript;
+        }
+        
+        function checkPausedStatus() {
+            if (!userData) return;
+            
+            // Check if user's plan is paused
+            if (userData.paused) {
+                document.getElementById('pausedBanner').style.display = 'flex';
+                
+                // Check if pause is locked
+                if (userData.pause_locked) {
+                    document.getElementById('pausedTitle').textContent = '🔒 Your Plan is Locked';
+                    document.getElementById('pausedMessage').textContent = 'Your subscription has been permanently paused by an admin. You cannot request unpause.';
+                    document.getElementById('unpauseBtn').style.display = 'none';
+                    document.getElementById('pausedBanner').style.borderColor = '#ff4444';
+                    document.getElementById('pausedBanner').style.background = 'linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 0, 0, 0.15))';
+                } else {
+                    document.getElementById('pausedTitle').textContent = 'Your Plan is Paused';
+                    document.getElementById('pausedMessage').textContent = 'Your subscription has been temporarily paused by an admin. Contact support if you have questions.';
+                    document.getElementById('unpauseBtn').style.display = 'block';
+                    document.getElementById('pausedBanner').style.borderColor = '#ff8800';
+                    document.getElementById('pausedBanner').style.background = 'linear-gradient(135deg, rgba(255, 136, 0, 0.15), rgba(255, 68, 68, 0.15))';
+                }
+            } else {
+                document.getElementById('pausedBanner').style.display = 'none';
+            }
+        }
+        
+        async function unpausePlan() {
+            try {
+                const res = await fetch('/api/unpause', { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Your plan has been unpaused!');
+                    // Reload to update UI
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.error || 'Cannot unpause', true);
+                }
+            } catch (e) {
+                showToast('Error unpausing', true);
+            }
+        }
+        
+        function copyReadyScript() {
+            const script = document.getElementById('readyScriptContent').textContent;
+            navigator.clipboard.writeText(script);
+            
+            // Visual feedback
+            const btn = document.getElementById('copyReadyScriptBtn');
+            btn.classList.add('copy-success');
+            btn.innerHTML = '✅ Copied!';
+            
+            setTimeout(() => {
+                btn.classList.remove('copy-success');
+                btn.innerHTML = '📋 Copy Ready Script';
+            }, 2000);
+            
+            showToast('Ready script copied! Paste in your executor.');
+        }
+        
+        async function resetHWID() {
+            if (!confirm('Reset your HWID? This will allow you to use the script on a different device.')) return;
+            
+            try {
+                const response = await fetch('/api/reset-hwid', { method: 'POST' });
+                const data = await response.json();
+                showToast(data.success ? 'HWID reset!' : 'Failed to reset');
+            } catch (error) {
+                showToast('Error resetting HWID', true);
+            }
+        }
+        
+        function addBalance() {
+            const discordId = userData.discord_id;
+            const paymentUrl = `https://app.paymento.io/payment-link/efb9cc013797497e874c16a60e3acc8f?email=${discordId}`;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            modal.innerHTML = `
+                <div style="background:#1a1a2e;border-radius:16px;padding:30px;max-width:400px;text-align:center;color:white;">
+                    <h2 style="margin:0 0 15px;color:#00d4ff;">💰 Add Balance</h2>
+                    <p style="color:#888;margin:0 0 20px;">Pay with crypto - balance added automatically!</p>
+                    
+                    <div style="background:#0a1a0a;border:2px solid #00ff88;padding:15px;border-radius:10px;margin:15px 0;">
+                        <p style="margin:0 0 10px;color:#00ff88;font-weight:bold;">📋 Your Payment ID:</p>
+                        <code style="color:#fff;font-size:14px;background:#000;padding:10px 15px;border-radius:6px;display:inline-block;word-break:break-all;">${discordId}</code>
+                        <button onclick="navigator.clipboard.writeText('${discordId}');this.textContent='✅ Copied!'" style="display:block;margin:10px auto 0;background:#00ff88;color:#000;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:bold;">📋 Copy ID</button>
+                    </div>
+                    
+                    <p style="color:#ff6b6b;font-size:13px;margin:15px 0;">⚠️ Paste this ID in the <strong>EMAIL</strong> field!</p>
+                    
+                    <button onclick="window.open('${paymentUrl}','_blank')" style="width:100%;padding:15px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:bold;font-size:16px;margin:10px 0;">💳 Pay with Crypto</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#666;cursor:pointer;margin-top:10px;">Cancel</button>
+                    
+                    <p style="color:#666;font-size:11px;margin-top:15px;">Balance updates automatically after payment!</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        }
+        
+        async function subscribe() {
+            let hours = parseFloat(document.getElementById('hoursInput').value) || 0;
+            hours = Math.round(hours * 10) / 10;
+            
+            // Validate minimum hours
+            if (hours < globalMinHours) {
+                showToast(`Minimum purchase is ${globalMinHours} hours!`, true);
+                return;
+            }
+            
+            if (hours > 168) {
+                showToast('Maximum purchase is 168 hours (7 days)!', true);
+                return;
+            }
+            
+            // Check if tier is full
+            if (fullTiers[selectedTier]) {
+                showToast(`${tierNames[selectedTier]} slots are full!`, true);
+                return;
+            }
+            
+            const cost = hours * tierPrices[selectedTier];
+            
+            if (cost > (userData.balance || 0)) {
+                showToast('Insufficient balance!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: selectedTier, hours })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Subscribed! ${hours}h of ${tierNames[selectedTier]} added`);
+                    // Reload user data
+                    loadUser();
+                } else {
+                    showToast(data.error || 'Failed to subscribe', true);
+                }
+            } catch (error) {
+                showToast('Error subscribing', true);
+            }
+        }
+        
+        // Extend Plan Functions
+        function adjustExtendHours(delta) {
+            const input = document.getElementById('extendHoursInput');
+            let value = parseInt(input.value) || 1;
+            value = Math.max(1, Math.min(168, value + delta));
+            input.value = value;
+            updateExtendCost();
+        }
+        
+        function updateExtendCost() {
+            if (!userData || !userData.subscription_tier) return;
+            const hours = parseInt(document.getElementById('extendHoursInput').value) || 1;
+            const tier = userData.subscription_tier;
+            const cost = hours * tierPrices[tier];
+            document.getElementById('extendCost').textContent = `$${cost.toFixed(2)}`;
+        }
+        
+        async function extendPlan() {
+            if (!userData || !userData.subscription_tier) {
+                showToast('No active plan to extend', true);
+                return;
+            }
+            
+            // Check if paused
+            if (userData.paused || globalPaused) {
+                showToast('Cannot extend while plan is paused', true);
+                return;
+            }
+            
+            const hours = parseInt(document.getElementById('extendHoursInput').value) || 1;
+            const tier = userData.subscription_tier;
+            const cost = hours * tierPrices[tier];
+            
+            if (cost > (userData.balance || 0)) {
+                showToast('Insufficient balance!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: tier, hours: hours })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Extended! +${hours}h added to your ${tierNames[tier]} plan`);
+                    loadUser();
+                } else {
+                    showToast(data.error || 'Failed to extend', true);
+                }
+            } catch (error) {
+                showToast('Error extending plan', true);
+            }
+        }
+        
+        function updateExtendSection() {
+            const section = document.getElementById('extendPlanSection');
+            const pausedNotice = document.getElementById('extendPausedNotice');
+            const extendBtn = document.getElementById('extendBtn');
+            
+            if (!userData || userData.subscription_tier <= 0 || userData.subscription_expires <= Date.now()) {
+                // No active subscription, hide extend section
+                section.style.display = 'none';
+                return;
+            }
+            
+            // Show extend section
+            section.style.display = 'block';
+            
+            // Update plan name
+            document.getElementById('extendPlanName').textContent = tierNames[userData.subscription_tier];
+            
+            // Check if paused (individually or globally)
+            const isPaused = userData.paused || globalPaused;
+            
+            if (isPaused) {
+                pausedNotice.style.display = 'block';
+                extendBtn.disabled = true;
+            } else {
+                pausedNotice.style.display = 'none';
+                extendBtn.disabled = false;
+            }
+            
+            // Update cost
+            updateExtendCost();
+        }
+        
+        // Listen for extend hours input changes
+        document.getElementById('extendHoursInput')?.addEventListener('input', updateExtendCost);
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+        
+        // Track which tiers are full
+        let fullTiers = {};
+        let salesClosed = false;
+        let globalPaused = false;
+        
+        // Check sales status
+        async function checkSalesStatus() {
+            try {
+                const res = await fetch('/api/sales-status');
+                const data = await res.json();
+                salesClosed = data.sales_closed;
+                
+                const notice = document.getElementById('salesClosedNotice');
+                const buySection = document.getElementById('buySection');
+                
+                if (salesClosed) {
+                    notice.style.display = 'block';
+                    buySection.classList.add('disabled');
+                } else {
+                    notice.style.display = 'none';
+                    buySection.classList.remove('disabled');
+                }
+            } catch (e) {
+                console.log('Error checking sales status:', e);
+            }
+        }
+        
+        // Fetch and display slots status
+        function formatTimeUntil(ms) {
+            if (!ms || ms <= 0) return '';
+            
+            const minutes = Math.floor(ms / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) {
+                return `${days}d ${hours % 24}h`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes % 60}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+        
+        async function loadSlotsStatus() {
+            try {
+                const response = await fetch('/api/slots-status');
+                const data = await response.json();
+                
+                for (const tier in data.plans) {
+                    const plan = data.plans[tier];
+                    
+                    // Update enabled status
+                    tierEnabled[tier] = plan.enabled !== false;
+                    
+                    // Skip disabled plans or admin-only plans if not admin
+                    if (!plan.enabled) continue;
+                    if (plan.adminOnly && !isAdmin) continue;
+                    
+                    const el = document.getElementById(`slots-${tier}`);
+                    const tierOption = document.querySelector(`.tier-option[data-tier="${tier}"]`);
+                    
+                    if (el) {
+                        const isFull = plan.activeUsers >= plan.maxSlots;
+                        fullTiers[tier] = isFull;
+                        
+                        // Calculate progress percentage
+                        const progressPercent = (plan.activeUsers / plan.maxSlots) * 100;
+                        const progressColor = isFull ? '#ff4444' : 
+                            progressPercent > 75 ? '#ff8800' : 
+                            progressPercent > 50 ? '#ffbb00' : 'var(--accent-primary)';
+                        
+                        // Build progress bar HTML
+                        let progressHtml = `
+                            <div class="slot-progress">
+                                <div class="slot-progress-bar">
+                                    <div class="slot-progress-fill" style="width: ${progressPercent}%; background: ${progressColor};"></div>
+                                </div>`;
+                        
+                        // Show next slot time (always, if available)
+                        if (plan.nextSlotMs && plan.nextSlotMs > 0) {
+                            const timeStr = formatTimeUntil(plan.nextSlotMs);
+                            progressHtml += `<div class="slot-next-time">⏱️ Next available: <strong>${timeStr}</strong></div>`;
+                        }
+                        progressHtml += `</div>`;
+                        
+                        if (isFull) {
+                            el.innerHTML = `❌ FULL (${plan.activeUsers}/${plan.maxSlots})${progressHtml}`;
+                            el.className = 'tier-slots full';
+                            if (tierOption) {
+                                tierOption.classList.add('tier-full');
+                            }
+                        } else {
+                            const available = plan.maxSlots - plan.activeUsers;
+                            el.innerHTML = `✓ ${available}/${plan.maxSlots} available${progressHtml}`;
+                            el.className = 'tier-slots available';
+                            if (tierOption) {
+                                tierOption.classList.remove('tier-full');
+                            }
+                        }
+                    }
+                }
+                
+                // Update button state and visibility
+                updateCost();
+                updateTierVisibility();
+            } catch (error) {
+                console.log('Error loading slots:', error);
+            }
+        }
+        
+        // Initialize - load in correct order
+        async function init() {
+            await loadPlans();      // Load plan config first
+            await loadUser();       // Load user (sets isAdmin)
+            await loadSlotsStatus(); // Load slots (needs isAdmin)
+            await checkSalesStatus();
+        }
+        init();
+        
+        // Refresh plans, slots and sales status every 30 seconds
+        setInterval(() => {
+            loadPlans();  // Also refresh plan prices/settings
+            loadSlotsStatus();
+            checkSalesStatus();
+        }, 30000);
+        
+        // Refresh time remaining every minute
+        setInterval(() => {
+            if (userData && userData.subscription_expires > Date.now()) {
+                const remaining = (userData.subscription_expires - Date.now()) / 1000;
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                document.getElementById('timeRemaining').textContent = 
+                    hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
+

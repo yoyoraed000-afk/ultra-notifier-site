@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Notifier - Brainrot Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Live Logs Ticker -->
+    <div class="live-logs-container">
+        <div class="live-indicator">
+            <span class="pulse"></span>
+            LIVE FINDS
+        </div>
+        <div class="logs-ticker" id="logsTicker">
+            <!-- Logs will be populated by JS -->
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">ULTRA NOTIFIER</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#plans">Plans</a>
+            <a href="#faq">FAQ</a>
+            <a href="/auth/discord" class="btn-discord" id="loginBtn">
+                🎮 Login with Discord
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">ULTRA</span> NOTIFIER
+            </h1>
+            <p class="hero-subtitle">The Most Powerful Brainrot Scanner</p>
+            <p class="hero-description">
+                Get instant notifications for high-value brainrots. Auto-scan servers, 
+                receive Discord alerts, and never miss a rare find again.
+            </p>
+            <div class="hero-buttons">
+                <a href="#plans" class="btn-primary">View Plans</a>
+                <a href="/auth/discord" class="btn-secondary">Get Started</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value" id="totalScans">50K+</span>
+                    <span class="stat-label">Servers Scanned</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="totalFinds">2.5K+</span>
+                    <span class="stat-label">Rare Finds</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="activeUsers">500+</span>
+                    <span class="stat-label">Active Users</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-cards">
+                <div class="brainrot-card card-1">
+                    <img src="https://calculadora.estevao1098.com/images/brainrots/skibidi_toilet.png" alt="Skibidi Toilet">
+                    <div class="card-info">
+                        <span class="card-name">Skibidi Toilet</span>
+                        <span class="card-value">$350M/s</span>
+                    </div>
+                </div>
+                <div class="brainrot-card card-2">
+                    <img src="https://calculadora.estevao1098.com/images/brainrots/meowl.png" alt="Meowl">
+                    <div class="card-info">
+                        <span class="card-name">Meowl</span>
+                        <span class="card-value">$280M/s</span>
+                    </div>
+                </div>
+                <div class="brainrot-card card-3">
+                    <img src="https://calculadora.estevao1098.com/images/brainrots/dragon_cannelloni.png" alt="Dragon Cannelloni">
+                    <div class="card-info">
+                        <span class="card-name">Dragon Cannelloni</span>
+                        <span class="card-value">$1.38B/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">Why Choose <span class="gradient-text">Ultra Notifier</span>?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Auto Server Scanning</h3>
+                <p>Automatically scans hundreds of servers per hour to find the best brainrots.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Notifications</h3>
+                <p>Get Discord alerts the moment a high-value brainrot is found.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Value Filtering</h3>
+                <p>Only get notified for brainrots that match your subscription tier.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure & Safe</h3>
+                <p>HWID locked keys ensure your subscription stays protected.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section class="plans" id="plans">
+        <h2 class="section-title">Choose Your <span class="gradient-text">Plan</span></h2>
+        <p class="section-subtitle">Rent per hour • Cancel anytime</p>
+        
+        <div class="plans-grid">
+            <!-- Bronze -->
+            <div class="plan-card" data-tier="1">
+                <div class="plan-badge bronze">BRONZE</div>
+                <div class="plan-price">
+                    <span class="price">$1.00</span>
+                    <span class="period">/hour</span>
+                </div>
+                <div class="plan-value">0 - 50M • 2 Slots</div>
+                <ul class="plan-features">
+                    <li>✓ 2 Scanner slots</li>
+                    <li>✓ 0 - 50M value alerts</li>
+                    <li>✓ Discord integration</li>
+                    <li>✓ HWID protection</li>
+                </ul>
+                <a href="/auth/discord" class="btn-plan bronze">Get Bronze</a>
+            </div>
+
+            <!-- Silver -->
+            <div class="plan-card" data-tier="2">
+                <div class="plan-badge silver">SILVER</div>
+                <div class="plan-price">
+                    <span class="price">$2.00</span>
+                    <span class="period">/hour</span>
+                </div>
+                <div class="plan-value">0 - 200M • 2 Slots</div>
+                <ul class="plan-features">
+                    <li>✓ 2 Scanner slots</li>
+                    <li>✓ 0 - 200M value alerts</li>
+                    <li>✓ Discord integration</li>
+                    <li>✓ HWID protection</li>
+                </ul>
+                <a href="/auth/discord" class="btn-plan silver">Get Silver</a>
+            </div>
+
+            <!-- Gold -->
+            <div class="plan-card popular" data-tier="3">
+                <div class="popular-tag">MOST POPULAR</div>
+                <div class="plan-badge gold">GOLD</div>
+                <div class="plan-price">
+                    <span class="price">$3.50</span>
+                    <span class="period">/hour</span>
+                </div>
+                <div class="plan-value">0 - 400M • 4 Slots</div>
+                <ul class="plan-features">
+                    <li>✓ 4 Scanner slots</li>
+                    <li>✓ 0 - 400M value alerts</li>
+                    <li>✓ Discord integration</li>
+                    <li>✓ HWID protection</li>
+                    <li>✓ Priority support</li>
+                </ul>
+                <a href="/auth/discord" class="btn-plan gold">Get Gold</a>
+            </div>
+
+            <!-- Diamond -->
+            <div class="plan-card" data-tier="4">
+                <div class="plan-badge diamond">DIAMOND</div>
+                <div class="plan-price">
+                    <span class="price">$4.25</span>
+                    <span class="period">/hour</span>
+                </div>
+                <div class="plan-value">0 - 1B+ • 2 Slots</div>
+                <ul class="plan-features">
+                    <li>✓ 2 Scanner slots</li>
+                    <li>✓ 0 - 1B+ (unlimited) alerts</li>
+                    <li>✓ All lower tiers included</li>
+                    <li>✓ HWID protection</li>
+                    <li>✓ 24/7 Priority support</li>
+                    <li>✓ Early access features</li>
+                </ul>
+                <a href="/auth/discord" class="btn-plan diamond">Get Diamond</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <h2 class="section-title">Frequently Asked <span class="gradient-text">Questions</span></h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3>How do I get my key?</h3>
+                <p>Login with Discord and your unique key will be automatically generated. Purchase a subscription to activate it.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What is HWID?</h3>
+                <p>Hardware ID locks your key to one device for security. You can reset it once from your dashboard.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How does hourly billing work?</h3>
+                <p>You purchase hours in advance. Your subscription is active until your hours run out.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Can I upgrade my plan?</h3>
+                <p>Yes! You can upgrade anytime. Your remaining hours will be converted to the new tier.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-icon">⚡</span>
+                <span>ULTRA NOTIFIER</span>
+            </div>
+            <p>© 2026 Ultra Notifier. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // Load dynamic plan prices
+        async function loadPlanPrices() {
+            try {
+                const res = await fetch('/api/plans?_=' + Date.now());
+                const data = await res.json();
+                const plans = data.plans || data;
+                
+                // Format value for display
+                function formatMinValue(num) {
+                    if (num >= 1000000000) {
+                        return (num / 1000000000).toFixed(num % 1000000000 === 0 ? 0 : 1) + 'B+';
+                    } else if (num >= 1000000) {
+                        return (num / 1000000).toFixed(num % 1000000 === 0 ? 0 : 1) + 'M+';
+                    }
+                    return num + '+';
+                }
+                
+                for (let tier = 1; tier <= 4; tier++) {
+                    const plan = plans[tier] || plans[tier.toString()];
+                    if (!plan) continue;
+                    
+                    const card = document.querySelector(`.plan-card[data-tier="${tier}"]`);
+                    if (!card) continue;
+                    
+                    // Update price
+                    const priceEl = card.querySelector('.price');
+                    if (priceEl) priceEl.textContent = '$' + parseFloat(plan.price).toFixed(2);
+                    
+                    // Update value/slots text
+                    const valueEl = card.querySelector('.plan-value');
+                    if (valueEl) valueEl.textContent = formatMinValue(plan.minValue || 0) + ' • ' + plan.slots + ' Slots';
+                    
+                    // Update features list slots text
+                    const slotsFeature = card.querySelector('.plan-features li:first-child');
+                    if (slotsFeature) slotsFeature.textContent = '✓ ' + plan.slots + ' Scanner slot' + (plan.slots > 1 ? 's' : '');
+                    
+                    // Update value feature
+                    const valueFeature = card.querySelector('.plan-features li:nth-child(2)');
+                    if (valueFeature) valueFeature.textContent = '✓ ' + formatMinValue(plan.minValue || 0) + ' value alerts';
+                    
+                    // Hide disabled plans
+                    if (plan.enabled === false) {
+                        card.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.log('Could not load dynamic prices');
+            }
+        }
+        
+        // Load prices on page load
+        loadPlanPrices();
+    </script>
+</body>
+</html>
+

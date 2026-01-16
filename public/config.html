@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config - Ultra Notifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Fix navbar to top on config page */
+        .navbar {
+            top: 0 !important;
+            z-index: 10000 !important;
+        }
+        
+        .config-page {
+            padding: 120px 50px 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .config-header h1 {
+            font-family: var(--font-display);
+            font-size: 28px;
+        }
+        
+        .config-header h1 span {
+            color: var(--accent-primary);
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: var(--bg-primary);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .btn-back {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .config-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .config-panel.include {
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+        
+        .config-panel.exclude {
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .panel-header h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+        }
+        
+        .config-panel.include h2 { color: var(--accent-primary); }
+        .config-panel.exclude h2 { color: #ff4444; }
+        
+        .panel-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            padding-left: 40px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent-primary);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .brainrot-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .brainrot-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .brainrot-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .brainrot-item:last-child {
+            border-bottom: none;
+        }
+        
+        .brainrot-item img {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+        
+        .brainrot-item .name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .brainrot-item .add-btn {
+            padding: 5px 12px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .config-panel.exclude .brainrot-item .add-btn {
+            background: #ff4444;
+        }
+        
+        .selected-list {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            min-height: 150px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .selected-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .selected-item:last-child {
+            border-bottom: none;
+        }
+        
+        .selected-item .name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .selected-item .value-input {
+            width: 100px;
+            padding: 6px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 12px;
+            text-align: right;
+        }
+        
+        .selected-item .value-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            width: 80px;
+        }
+        
+        .selected-item .remove-btn {
+            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .selected-item .remove-btn:hover {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .empty-state {
+            padding: 30px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .section-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            margin-top: 15px;
+        }
+        
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+        
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: #ff4444; color: white; }
+        
+        .general-min-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.05));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .general-min-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .general-min-icon {
+            font-size: 28px;
+        }
+        
+        .general-min-left h3 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+        
+        .general-min-left p {
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 400px;
+        }
+        
+        .general-min-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .general-min-input {
+            width: 120px;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 10px;
+            color: #ffd700;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+        }
+        
+        .general-min-input:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+        
+        .general-min-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 900px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+            .config-page {
+                padding: 100px 20px 50px;
+            }
+            .general-min-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .general-min-left {
+                flex-direction: column;
+            }
+            .general-min-left p {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+    </div>
+
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">ULTRA NOTIFIER</span>
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard" style="color: var(--text-muted);">← Dashboard</a>
+            <a href="/auth/logout" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="config-page">
+        <div class="config-header">
+            <div>
+                <h1>⚙️ <span>Brainrot Config</span></h1>
+                <p style="color: var(--text-muted); margin-top: 5px;">Customize which brainrots to notify for</p>
+            </div>
+            <div class="header-buttons">
+                <button class="btn btn-secondary" onclick="exportConfig()">📤 Export</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Import</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importConfig(event)">
+                <button class="btn btn-primary" onclick="saveConfig()">💾 Save Config</button>
+            </div>
+        </div>
+
+        <!-- General Minimum Value -->
+        <div class="general-min-card">
+            <div class="general-min-left">
+                <span class="general-min-icon">🎯</span>
+                <div>
+                    <h3>Minimum General Value</h3>
+                    <p>Only notify for brainrots above this value (unless they're in Include list with their own minimum)</p>
+                </div>
+            </div>
+            <div class="general-min-right">
+                <input type="text" id="generalMinValue" class="general-min-input" value="0" placeholder="e.g. 300M" onchange="updateGeneralMin()">
+                <span class="general-min-label">min value</span>
+            </div>
+        </div>
+
+        <div class="config-grid">
+            <!-- Include Panel -->
+            <div class="config-panel include">
+                <div class="panel-header">
+                    <div>
+                        <h2>✅ Include Only</h2>
+                        <p>Only notify for these brainrots above set value</p>
+                    </div>
+                </div>
+                
+                <div class="section-label">Search Brainrots</div>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="includeSearch" placeholder="Search brainrots..." oninput="filterBrainrots('include')">
+                </div>
+                
+                <div class="brainrot-list" id="includeBrainrotList">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div class="section-label">Selected (min value to notify)</div>
+                <div class="selected-list" id="includeSelected">
+                    <div class="empty-state">No brainrots selected. Click + to add.</div>
+                </div>
+            </div>
+
+            <!-- Exclude Panel -->
+            <div class="config-panel exclude">
+                <div class="panel-header">
+                    <div>
+                        <h2>❌ Exclude</h2>
+                        <p>Don't notify for these brainrots below set value</p>
+                    </div>
+                </div>
+                
+                <div class="section-label">Search Brainrots</div>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="excludeSearch" placeholder="Search brainrots..." oninput="filterBrainrots('exclude')">
+                </div>
+                
+                <div class="brainrot-list" id="excludeBrainrotList">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div class="section-label">Selected (max value to exclude)</div>
+                <div class="selected-list" id="excludeSelected">
+                    <div class="empty-state">No brainrots selected. Click + to add.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="import-export">
+            <p style="color: var(--text-muted); font-size: 12px;">
+                💡 <strong>Tip:</strong> Export your config to save it locally. Import to restore settings.
+            </p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Saved!</div>
+
+    <script>
+        // All brainrots list
+        const BRAINROTS = [
+            "Skibidi Toilet", "Dragon Cannelloni", "Meowl", "Headless Horseman", "Strawberry Elephant",
+            "Dragonini Gingerini", "Cooki and Milki", "Capitano Moby", "La Supreme Combinasion",
+            "Burguro and Fryuro", "Garama and Madundung", "Lavadorito Spinito", "Spooky and Pumpky",
+            "La Casa Boo", "La Secret Combinasion", "Chillin Chili", "Ketchuru and Musturu",
+            "Ketupat Kepat", "La Taco Combinasion", "Tang Tang Keletang", "Tictac Sahur", "W or L",
+            "Spaghetti Tualetti", "Nuclearo Dinossauro", "Money Money Puggy", "Fragrama and Chocrama",
+            "La Grande Combinasion", "Los Combinasionas", "Esok Sekolah", "Los Burritos", "Las Sis",
+            "Los Mobilis", "Mieteteira Bicicleteira", "Los 67", "Los Candies", "Chimnino",
+            "Swaggy Bros", "Los Spooky Combinasionas", "Chicleteira Noelteira", "Tralaledon",
+            "Los Tacoritas", "Chipso and Queso", "Orcaledon", "La Extinct Grande", "Tacorita Bicicleta",
+            "Eviledon", "Los Bros", "La Jolly Grande", "La Spooky Grande", "Los Primos",
+            "Fishino Clownino", "Festive 67", "La Ginger Sekolah", "Reinito Sleighito",
+            "Los Spaghettis", "Los Puggies", "Celularcini Viciosini", "Los Hotspotsitos",
+            "Mariachi Corazoni", "67", "Los Chicleteiras", "Rang Ring Bus",
+            "Los Nooo My Hotspotsitos", "Burrito Bandito", "Chicleteirina Bicicleteirina",
+            "Chicleteira Bicicleteira", "Quesadillo Vampiro", "Pot Pumpkin", "Quesadilla Crocodila"
+        ].sort();
+
+        // Current config
+        let includeConfig = {}; // { "Meowl": 1000000, "Skibidi Toilet": 0 }
+        let excludeConfig = {}; // { "Garama": 100000000 }
+        let generalMinValue = 0; // General minimum value for all brainrots
+        
+        function updateGeneralMin() {
+            const input = document.getElementById('generalMinValue');
+            generalMinValue = parseValue(input.value);
+            input.value = formatValue(generalMinValue);
+        }
+
+        function getBrainrotImage(name) {
+            const formatted = name.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+            return `https://calculadora.estevao1098.com/images/brainrots/${formatted}.png`;
+        }
+
+        function formatValue(val) {
+            if (val >= 1000000000) return (val / 1000000000).toFixed(1) + 'B';
+            if (val >= 1000000) return (val / 1000000).toFixed(0) + 'M';
+            if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+            return val.toString();
+        }
+
+        function parseValue(str) {
+            str = str.toString().toUpperCase().trim();
+            if (str.endsWith('B')) return parseFloat(str) * 1000000000;
+            if (str.endsWith('M')) return parseFloat(str) * 1000000;
+            if (str.endsWith('K')) return parseFloat(str) * 1000;
+            return parseFloat(str) || 0;
+        }
+
+        function renderBrainrotList(type) {
+            const search = document.getElementById(`${type}Search`).value.toLowerCase();
+            const list = document.getElementById(`${type}BrainrotList`);
+            const config = type === 'include' ? includeConfig : excludeConfig;
+            
+            const filtered = BRAINROTS.filter(name => 
+                name.toLowerCase().includes(search) && !config.hasOwnProperty(name)
+            );
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state">No brainrots found</div>';
+                return;
+            }
+            
+            list.innerHTML = filtered.map(name => `
+                <div class="brainrot-item">
+                    <img src="${getBrainrotImage(name)}" onerror="this.style.display='none'">
+                    <span class="name">${name}</span>
+                    <button class="add-btn" onclick="addBrainrot('${type}', '${name}')">+ Add</button>
+                </div>
+            `).join('');
+        }
+
+        function renderSelected(type) {
+            const container = document.getElementById(`${type}Selected`);
+            const config = type === 'include' ? includeConfig : excludeConfig;
+            const entries = Object.entries(config);
+            
+            if (entries.length === 0) {
+                container.innerHTML = '<div class="empty-state">No brainrots selected. Click + to add.</div>';
+                return;
+            }
+            
+            const label = type === 'include' ? 'Min:' : 'Max:';
+            
+            container.innerHTML = entries.map(([name, value]) => `
+                <div class="selected-item">
+                    <span class="name">${name}</span>
+                    <span class="value-label">${label}</span>
+                    <input type="text" class="value-input" value="${formatValue(value)}" 
+                           onchange="updateValue('${type}', '${name}', this.value)"
+                           placeholder="e.g. 100M">
+                    <button class="remove-btn" onclick="removeBrainrot('${type}', '${name}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function addBrainrot(type, name) {
+            const config = type === 'include' ? includeConfig : excludeConfig;
+            config[name] = 0; // Default value
+            renderBrainrotList(type);
+            renderSelected(type);
+        }
+
+        function removeBrainrot(type, name) {
+            const config = type === 'include' ? includeConfig : excludeConfig;
+            delete config[name];
+            renderBrainrotList(type);
+            renderSelected(type);
+        }
+
+        function updateValue(type, name, valueStr) {
+            const config = type === 'include' ? includeConfig : excludeConfig;
+            config[name] = parseValue(valueStr);
+        }
+
+        function filterBrainrots(type) {
+            renderBrainrotList(type);
+        }
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('/api/user/config');
+                const data = await res.json();
+                
+                // Load general minimum value
+                if (data.general_min !== undefined) {
+                    generalMinValue = data.general_min;
+                    document.getElementById('generalMinValue').value = formatValue(generalMinValue);
+                }
+                
+                // Convert arrays to objects if needed (backward compat)
+                if (Array.isArray(data.include_list)) {
+                    data.include_list.forEach(item => {
+                        if (typeof item === 'object') {
+                            includeConfig[item.name] = item.value || 0;
+                        } else {
+                            includeConfig[item] = 0;
+                        }
+                    });
+                } else if (data.include_config) {
+                    includeConfig = data.include_config;
+                }
+                
+                if (Array.isArray(data.exclude_list)) {
+                    data.exclude_list.forEach(item => {
+                        if (typeof item === 'object') {
+                            excludeConfig[item.name] = item.value || 0;
+                        } else {
+                            excludeConfig[item] = 0;
+                        }
+                    });
+                } else if (data.exclude_config) {
+                    excludeConfig = data.exclude_config;
+                }
+                
+                renderBrainrotList('include');
+                renderBrainrotList('exclude');
+                renderSelected('include');
+                renderSelected('exclude');
+            } catch (e) {
+                console.error('Error loading config:', e);
+            }
+        }
+
+        async function saveConfig() {
+            try {
+                const res = await fetch('/api/user/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        include_config: includeConfig,
+                        exclude_config: excludeConfig,
+                        general_min: generalMinValue
+                    })
+                });
+                
+                if (res.ok) {
+                    showToast('Config saved!');
+                } else {
+                    showToast('Failed to save', true);
+                }
+            } catch (e) {
+                showToast('Error saving config', true);
+            }
+        }
+
+        function exportConfig() {
+            const config = {
+                general_min: generalMinValue,
+                include: includeConfig,
+                exclude: excludeConfig,
+                exported_at: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ultra-notifier-config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Config exported!');
+        }
+
+        function importConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // Import general min
+                    if (config.general_min !== undefined) {
+                        generalMinValue = config.general_min;
+                        document.getElementById('generalMinValue').value = formatValue(generalMinValue);
+                    }
+                    
+                    if (config.include) includeConfig = config.include;
+                    if (config.exclude) excludeConfig = config.exclude;
+                    
+                    renderBrainrotList('include');
+                    renderBrainrotList('exclude');
+                    renderSelected('include');
+                    renderSelected('exclude');
+                    
+                    showToast('Config imported! Click Save to apply.');
+                } catch (err) {
+                    showToast('Invalid config file', true);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        // Check auth
+        fetch('/api/user').then(r => r.json()).then(data => {
+            if (!data.authenticated) window.location.href = '/';
+        });
+
+        // Init
+        loadConfig();
+    </script>
+</body>
+</html>
+
