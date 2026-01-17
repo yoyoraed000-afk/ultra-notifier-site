@@ -615,22 +615,27 @@
 
         async function loadConfig() {
             try {
-                const res = await fetch('/api/user/config');
+                console.log('[Config] Loading config from server...');
+                const res = await fetch('/api/user/config', { credentials: 'include' });
+                
+                console.log('[Config] Load response status:', res.status);
                 
                 // Check if user is authenticated
                 if (res.status === 401) {
+                    console.error('[Config] Not authenticated!');
                     showToast('Please login first', true);
                     setTimeout(() => window.location.href = '/auth/discord', 1500);
                     return;
                 }
                 
                 if (!res.ok) {
+                    console.error('[Config] Failed to load, status:', res.status);
                     showToast('Failed to load config', true);
                     return;
                 }
                 
                 const data = await res.json();
-                console.log('[Config] Loaded from server:', data);
+                console.log('[Config] Loaded from server:', JSON.stringify(data, null, 2));
                 
                 // Load general minimum value
                 if (data.general_min !== undefined) {
@@ -690,27 +695,41 @@
                     general_min: generalMinValue
                 };
                 
-                console.log('[Config] Saving:', payload);
+                console.log('[Config] Saving payload:', JSON.stringify(payload, null, 2));
                 
                 const res = await fetch('/api/user/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include', // Ensure cookies are sent
                     body: JSON.stringify(payload)
                 });
                 
+                console.log('[Config] Save response status:', res.status);
+                
                 if (res.status === 401) {
+                    console.error('[Config] Not authenticated!');
                     showToast('Session expired - please login again', true);
                     setTimeout(() => window.location.href = '/auth/discord', 1500);
                     return;
                 }
                 
+                const responseData = await res.json().catch(() => ({}));
+                console.log('[Config] Save response:', responseData);
+                
                 if (res.ok) {
                     const includeCount = Object.keys(includeConfig).length;
                     const excludeCount = Object.keys(excludeConfig).length;
                     showToast(`✅ Saved! ${includeCount} includes, ${excludeCount} excludes`);
+                    
+                    // Verify save worked by reloading
+                    console.log('[Config] Verifying save - reloading config from server...');
+                    setTimeout(async () => {
+                        const verify = await fetch('/api/user/config', { credentials: 'include' });
+                        const verifyData = await verify.json();
+                        console.log('[Config] Verification - server has:', verifyData);
+                    }, 500);
                 } else {
-                    const error = await res.json().catch(() => ({}));
-                    showToast(error.error || 'Failed to save', true);
+                    showToast(responseData.error || 'Failed to save', true);
                 }
             } catch (e) {
                 showToast('Error saving config', true);
