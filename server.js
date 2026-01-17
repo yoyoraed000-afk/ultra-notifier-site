@@ -536,14 +536,22 @@ app.post('/api/user/config', (req, res) => {
         updates.exclude_list = exclude_list.slice(0, 100);
     }
     
-    updateUser(req.user.id, updates);
+    // Save to database
+    const updatedUser = updateUser(req.user.id, updates);
     
     const includeCount = Object.keys(updates.include_config || {}).length;
     const excludeCount = Object.keys(updates.exclude_config || {}).length;
     const minFormatted = updates.general_min ? (updates.general_min >= 1000000000 ? (updates.general_min / 1000000000).toFixed(1) + 'B' : (updates.general_min / 1000000).toFixed(0) + 'M') : '0';
-    console.log(`[Config] ${req.user.username} updated: min=${minFormatted}, ${includeCount} includes, ${excludeCount} excludes`);
     
-    res.json({ success: true });
+    console.log(`[Config] POST ${req.user.username}: min=${minFormatted}, ${includeCount} includes, ${excludeCount} excludes`);
+    
+    // Verify save worked
+    const verifyUser = findUser({ id: req.user.id });
+    const verifyInclude = Object.keys(verifyUser.include_config || {}).length;
+    const verifyExclude = Object.keys(verifyUser.exclude_config || {}).length;
+    console.log(`[Config] Verified in DB: ${verifyInclude} includes, ${verifyExclude} excludes`);
+    
+    res.json({ success: true, saved: { includes: includeCount, excludes: excludeCount } });
 });
 
 // ============================================================
