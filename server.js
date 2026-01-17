@@ -404,7 +404,19 @@ app.get('/api/user', (req, res) => {
     if (!req.user) return res.json({ authenticated: false });
     
     const user = findUser({ id: req.user.id });
-    const isActive = user.subscription_expires > Date.now();
+    
+    // If paused, show frozen time. Otherwise show live countdown.
+    let isActive = false;
+    let effectiveExpires = user.subscription_expires;
+    
+    if (user.paused && user.paused_time_remaining) {
+        // User is paused - they still have an active sub (frozen)
+        isActive = user.paused_time_remaining > 0;
+        // Show what the expiry WOULD be if unpaused now
+        effectiveExpires = Date.now() + user.paused_time_remaining;
+    } else {
+        isActive = user.subscription_expires > Date.now();
+    }
     
     res.json({
         authenticated: true,
@@ -416,11 +428,12 @@ app.get('/api/user', (req, res) => {
             license_key: user.license_key,
             balance: user.balance || 0,
             subscription_tier: isActive ? user.subscription_tier : 0,
-            subscription_expires: user.subscription_expires,
+            subscription_expires: effectiveExpires,
             plan: isActive ? PLANS[user.subscription_tier] : null,
             warnings: user.warnings || 0,
             paused: user.paused || false,
-            pause_locked: user.pause_locked || false
+            pause_locked: user.pause_locked || false,
+            paused_time_remaining: user.paused_time_remaining || null
         }
     });
 });
@@ -454,12 +467,21 @@ app.post('/api/unpause', (req, res) => {
         return res.json({ success: false, error: 'Your pause is locked by an admin. Contact support.' });
     }
     
-    // Unpause the user
-    updateUser(req.user.id, { paused: false, unpause_requested: false });
+    // Unpause the user and restore their subscription time
+    const timeRemaining = user.paused_time_remaining || 0;
+    const newExpires = Date.now() + timeRemaining;
     
-    console.log(`[UNPAUSE] User ${user.discord_username} (${req.user.id}) unpaused their own plan`);
+    updateUser(req.user.id, { 
+        paused: false, 
+        unpause_requested: false,
+        subscription_expires: newExpires,
+        paused_time_remaining: null,
+        paused_at: null
+    });
     
-    res.json({ success: true, message: 'Your plan has been unpaused!' });
+    console.log(`[UNPAUSE] User ${user.discord_username} (${req.user.id}) unpaused their own plan (restored ${(timeRemaining / 3600000).toFixed(1)}h)`);
+    
+    res.json({ success: true, message: 'Your plan has been unpaused! Time restored.' });
 });
 
 // Get user config (include/exclude with values)
@@ -835,9 +857,21 @@ app.get('/api/validate', (req, res) => {
 // Get all users (admin only)
 app.get('/api/admin/users', requireAdmin, (req, res) => {
     const users = db.users.map(u => {
-        const isActive = u.subscription_expires > Date.now();
-        const hoursRemaining = isActive ? Math.max(0, (u.subscription_expires - Date.now()) / 3600000) : 0;
         const isHwidBanned = u.hwid && db.banned_hwids.includes(u.hwid);
+        
+        // If paused, show frozen time. Otherwise show live countdown.
+        let hoursRemaining = 0;
+        let isActive = false;
+        
+        if (u.paused && u.paused_time_remaining) {
+            // User is paused - show the frozen time
+            hoursRemaining = u.paused_time_remaining / 3600000;
+            isActive = u.paused_time_remaining > 0;
+        } else {
+            // Normal countdown
+            isActive = u.subscription_expires > Date.now();
+            hoursRemaining = isActive ? Math.max(0, (u.subscription_expires - Date.now()) / 3600000) : 0;
+        }
         
         return {
             id: u.id,
@@ -856,6 +890,7 @@ app.get('/api/admin/users', requireAdmin, (req, res) => {
             warnings: u.warnings || 0,
             paused: u.paused || false,
             pause_locked: u.pause_locked || false,
+            paused_time_remaining: u.paused_time_remaining || null,
             created_at: u.created_at,
             last_active: u.last_active
         };
@@ -927,6 +962,52 @@ app.post('/api/admin/plans', requireAdmin, (req, res) => {
     console.log(`[Admin] ${req.user.username} updated plan configuration`);
     
     res.json({ success: true, plans: updatedPlans, globalMinHours: db.global_min_hours || 2 });
+});
+
+// Get active users (public - for active users page)
+app.get('/api/active-users', (req, res) => {
+    const now = Date.now();
+    
+    // Get all users with active subscriptions
+    const activeUsers = db.users.filter(u => {
+        // If paused with remaining time, they count as active
+        if (u.paused && u.paused_time_remaining > 0) return true;
+        // Otherwise check normal expiry
+        return u.subscription_tier > 0 && u.subscription_expires > now;
+    });
+    
+    // Map to public info only (no sensitive data like license keys, hwid, etc)
+    const publicUsers = activeUsers.map(u => {
+        let hoursRemaining = 0;
+        
+        if (u.paused && u.paused_time_remaining) {
+            hoursRemaining = u.paused_time_remaining / 3600000;
+        } else {
+            hoursRemaining = Math.max(0, (u.subscription_expires - now) / 3600000);
+        }
+        
+        return {
+            username: u.username,
+            avatar: u.avatar,
+            discord_id: u.discord_id,
+            subscription_tier: u.subscription_tier,
+            hours_remaining: hoursRemaining,
+            paused: u.paused || false
+        };
+    });
+    
+    // Calculate stats
+    const totalHours = publicUsers.reduce((sum, u) => sum + u.hours_remaining, 0);
+    const avgHours = publicUsers.length > 0 ? totalHours / publicUsers.length : 0;
+    
+    res.json({
+        users: publicUsers,
+        stats: {
+            active: publicUsers.length,
+            total: db.users.length,
+            avgHours: avgHours
+        }
+    });
 });
 
 // Get plans (public - for dashboard)
@@ -1218,14 +1299,35 @@ app.post('/api/admin/pause/:userId', requireAdmin, (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     const newPausedState = !user.paused;
-    updateUser(userId, { paused: newPausedState, pause_locked: false }); // Reset lock when toggling pause
     
-    console.log(`[Admin] ${req.user.username} ${newPausedState ? 'paused' : 'resumed'} plan for ${user.username}`);
+    if (newPausedState) {
+        // PAUSING: Save the remaining time so it doesn't keep counting down
+        const timeRemaining = Math.max(0, user.subscription_expires - Date.now());
+        updateUser(userId, { 
+            paused: true, 
+            pause_locked: false,
+            paused_time_remaining: timeRemaining,  // Store remaining ms
+            paused_at: Date.now()
+        });
+        console.log(`[Admin] ${req.user.username} PAUSED plan for ${user.username} (${(timeRemaining / 3600000).toFixed(1)}h remaining frozen)`);
+    } else {
+        // UNPAUSING: Restore the subscription time from when it was paused
+        const timeRemaining = user.paused_time_remaining || 0;
+        const newExpires = Date.now() + timeRemaining;
+        updateUser(userId, { 
+            paused: false, 
+            pause_locked: false,
+            subscription_expires: newExpires,
+            paused_time_remaining: null,
+            paused_at: null
+        });
+        console.log(`[Admin] ${req.user.username} RESUMED plan for ${user.username} (restored ${(timeRemaining / 3600000).toFixed(1)}h)`);
+    }
     
     res.json({ 
         success: true, 
         paused: newPausedState,
-        message: newPausedState ? `${user.username}'s plan paused` : `${user.username}'s plan resumed`
+        message: newPausedState ? `${user.username}'s plan paused (time frozen)` : `${user.username}'s plan resumed (time restored)`
     });
 });
 
