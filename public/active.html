@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Users - Ultra Notifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .page-header .icon {
+            font-size: 48px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-card .label .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #a855f7;
+            margin-top: 8px;
+        }
+
+        /* Plan Section */
+        .plan-section {
+            margin-bottom: 40px;
+        }
+
+        .plan-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .plan-header .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .plan-header .icon {
+            font-size: 24px;
+        }
+
+        .plan-header h2 {
+            font-size: 20px;
+            color: #a855f7;
+        }
+
+        .plan-header .subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .plan-header .count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        /* User Grid */
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .user-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.08));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.2);
+        }
+
+        .user-card .rank {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(168, 85, 247, 0.3);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a855f7;
+        }
+
+        .user-card .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-card .status-badge.paused {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .user-card .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 20px auto 16px;
+            border: 3px solid rgba(168, 85, 247, 0.5);
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+
+        .user-card .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-card .username {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .user-card .time-left {
+            font-size: 14px;
+            color: #a855f7;
+            font-weight: 500;
+        }
+
+        .user-card .plan-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(168, 85, 247, 0.2);
+            border-radius: 20px;
+            font-size: 11px;
+            color: #c084fc;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        /* Tier Colors */
+        .tier-bronze { border-color: rgba(205, 127, 50, 0.5); }
+        .tier-bronze .time-left { color: #cd7f32; }
+        .tier-bronze .avatar { border-color: rgba(205, 127, 50, 0.5); }
+
+        .tier-silver { border-color: rgba(192, 192, 192, 0.5); }
+        .tier-silver .time-left { color: #c0c0c0; }
+        .tier-silver .avatar { border-color: rgba(192, 192, 192, 0.5); }
+
+        .tier-gold { border-color: rgba(255, 215, 0, 0.5); }
+        .tier-gold .time-left { color: #ffd700; }
+        .tier-gold .avatar { border-color: rgba(255, 215, 0, 0.5); }
+
+        .tier-diamond { border-color: rgba(185, 242, 255, 0.5); }
+        .tier-diamond .time-left { color: #b9f2ff; }
+        .tier-diamond .avatar { border-color: rgba(185, 242, 255, 0.5); }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .loading .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top-color: #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #a855f7;
+        }
+
+        /* Live indicator */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #22c55e;
+        }
+
+        .live-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .user-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+
+        <div class="page-header">
+            <span class="icon">⚡</span>
+            <div>
+                <h1>Active Users</h1>
+                <p>All active subscription holders - Updated live</p>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading active users...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PLAN_NAMES = {
+            1: 'Bronze',
+            2: 'Silver', 
+            3: 'Gold',
+            4: 'Diamond',
+            5: 'Diamond+'
+        };
+
+        const PLAN_ICONS = {
+            1: '🥉',
+            2: '🥈',
+            3: '🥇',
+            4: '💎',
+            5: '👑'
+        };
+
+        function formatTime(hours) {
+            if (hours <= 0) return 'Expired';
+            if (hours < 1) {
+                const mins = Math.round(hours * 60);
+                return `${mins}m`;
+            }
+            if (hours < 24) {
+                const h = Math.floor(hours);
+                const m = Math.round((hours - h) * 60);
+                return m > 0 ? `${h}h ${m}m` : `${h}h`;
+            }
+            const days = Math.floor(hours / 24);
+            const remainingHours = Math.round(hours % 24);
+            return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
+        }
+
+        function getAvatarUrl(user) {
+            if (user.avatar && user.discord_id) {
+                return `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png?size=128`;
+            }
+            return `https://cdn.discordapp.com/embed/avatars/${Math.abs(parseInt(user.discord_id || '0')) % 5}.png`;
+        }
+
+        function getTierClass(tier) {
+            const classes = { 1: 'tier-bronze', 2: 'tier-silver', 3: 'tier-gold', 4: 'tier-diamond', 5: 'tier-diamond' };
+            return classes[tier] || '';
+        }
+
+        async function loadActiveUsers() {
+            try {
+                const response = await fetch('/api/active-users');
+                const data = await response.json();
+                renderUsers(data);
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">❌</div>
+                        <p>Failed to load active users. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderUsers(data) {
+            const { users, stats } = data;
+
+            // Group users by tier
+            const byTier = {};
+            users.forEach(user => {
+                const tier = user.subscription_tier;
+                if (!byTier[tier]) byTier[tier] = [];
+                byTier[tier].push(user);
+            });
+
+            // Sort within each tier by hours remaining (descending)
+            Object.keys(byTier).forEach(tier => {
+                byTier[tier].sort((a, b) => b.hours_remaining - a.hours_remaining);
+            });
+
+            let html = `
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="label"><span class="dot"></span> Active</div>
+                        <div class="value">${stats.active}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">👥 Total Users</div>
+                        <div class="value">${stats.total}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">⏱️ Avg Time Left</div>
+                        <div class="value">${formatTime(stats.avgHours)}</div>
+                    </div>
+                </div>
+            `;
+
+            // Render each tier section (Diamond first, then Gold, Silver, Bronze)
+            const tierOrder = [5, 4, 3, 2, 1];
+            const tierDescriptions = {
+                1: '0 - 50M value alerts',
+                2: '0 - 200M value alerts',
+                3: '0 - 400M value alerts',
+                4: '0 - 1B+ value alerts',
+                5: '1B+ Private + Priority'
+            };
+
+            tierOrder.forEach(tier => {
+                const tierUsers = byTier[tier] || [];
+                
+                html += `
+                    <div class="plan-section">
+                        <div class="plan-header">
+                            <div class="left">
+                                <span class="icon">${PLAN_ICONS[tier]}</span>
+                                <div>
+                                    <h2>${PLAN_NAMES[tier]} Plan</h2>
+                                    <div class="subtitle">${tierDescriptions[tier]}</div>
+                                </div>
+                            </div>
+                            <div class="count">${tierUsers.length}</div>
+                        </div>
+                `;
+
+                if (tierUsers.length === 0) {
+                    html += `
+                        <div class="empty-state">
+                            <div class="icon">🐵</div>
+                            <p>No active ${PLAN_NAMES[tier]} subscribers</p>
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="user-grid">`;
+                    tierUsers.forEach((user, index) => {
+                        html += `
+                            <div class="user-card ${getTierClass(tier)}">
+                                <div class="rank">#${index + 1}</div>
+                                <div class="status-badge ${user.paused ? 'paused' : ''}">${user.paused ? 'PAUSED' : 'ACTIVE'}</div>
+                                <div class="avatar">
+                                    <img src="${getAvatarUrl(user)}" alt="${user.username}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                </div>
+                                <div class="username">${user.username}</div>
+                                <div class="time-left">${user.paused ? '⏸️ ' : ''}${formatTime(user.hours_remaining)}</div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                html += `</div>`;
+            });
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // Initial load
+        loadActiveUsers();
+
+        // Refresh every 30 seconds
+        setInterval(loadActiveUsers, 30000);
+    </script>
+</body>
+</html>
