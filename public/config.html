@@ -616,7 +616,21 @@
         async function loadConfig() {
             try {
                 const res = await fetch('/api/user/config');
+                
+                // Check if user is authenticated
+                if (res.status === 401) {
+                    showToast('Please login first', true);
+                    setTimeout(() => window.location.href = '/auth/discord', 1500);
+                    return;
+                }
+                
+                if (!res.ok) {
+                    showToast('Failed to load config', true);
+                    return;
+                }
+                
                 const data = await res.json();
+                console.log('[Config] Loaded from server:', data);
                 
                 // Load general minimum value
                 if (data.general_min !== undefined) {
@@ -634,7 +648,7 @@
                         }
                     });
                 } else if (data.include_config) {
-                    includeConfig = data.include_config;
+                    includeConfig = { ...data.include_config };
                 }
                 
                 if (Array.isArray(data.exclude_list)) {
@@ -646,34 +660,57 @@
                         }
                     });
                 } else if (data.exclude_config) {
-                    excludeConfig = data.exclude_config;
+                    excludeConfig = { ...data.exclude_config };
                 }
+                
+                console.log('[Config] Include:', includeConfig);
+                console.log('[Config] Exclude:', excludeConfig);
                 
                 renderBrainrotList('include');
                 renderBrainrotList('exclude');
                 renderSelected('include');
                 renderSelected('exclude');
+                
+                // Show loaded count
+                const totalItems = Object.keys(includeConfig).length + Object.keys(excludeConfig).length;
+                if (totalItems > 0) {
+                    showToast(`Loaded ${totalItems} items`);
+                }
             } catch (e) {
                 console.error('Error loading config:', e);
+                showToast('Error loading config', true);
             }
         }
 
         async function saveConfig() {
             try {
+                const payload = {
+                    include_config: includeConfig,
+                    exclude_config: excludeConfig,
+                    general_min: generalMinValue
+                };
+                
+                console.log('[Config] Saving:', payload);
+                
                 const res = await fetch('/api/user/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        include_config: includeConfig,
-                        exclude_config: excludeConfig,
-                        general_min: generalMinValue
-                    })
+                    body: JSON.stringify(payload)
                 });
                 
+                if (res.status === 401) {
+                    showToast('Session expired - please login again', true);
+                    setTimeout(() => window.location.href = '/auth/discord', 1500);
+                    return;
+                }
+                
                 if (res.ok) {
-                    showToast('Config saved!');
+                    const includeCount = Object.keys(includeConfig).length;
+                    const excludeCount = Object.keys(excludeConfig).length;
+                    showToast(`✅ Saved! ${includeCount} includes, ${excludeCount} excludes`);
                 } else {
-                    showToast('Failed to save', true);
+                    const error = await res.json().catch(() => ({}));
+                    showToast(error.error || 'Failed to save', true);
                 }
             } catch (e) {
                 showToast('Error saving config', true);
