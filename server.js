@@ -202,19 +202,20 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Auto-create sessions folder if it doesn't exist
-const sessionsPath = path.join(__dirname, 'sessions');
+// Auto-create sessions folder - use persistent disk if available
+const sessionsPath = fs.existsSync('/data') ? '/data/sessions' : path.join(__dirname, 'sessions');
 if (!fs.existsSync(sessionsPath)) {
     fs.mkdirSync(sessionsPath, { recursive: true });
-    console.log('✅ Created sessions folder');
+    console.log(`✅ Created sessions folder at: ${sessionsPath}`);
 }
+console.log(`[Sessions] Using path: ${sessionsPath}`);
 
 // File-based session store (persists across restarts)
 const FileStore = require('session-file-store')(session);
 
 app.use(session({
     store: new FileStore({
-        path: './sessions',
+        path: sessionsPath,
         ttl: 30 * 24 * 60 * 60, // 30 days in seconds (longer persistence)
         retries: 2,
         reapInterval: 3600, // Clean expired sessions every hour
@@ -490,14 +491,20 @@ app.get('/api/user/config', (req, res) => {
     
     const user = findUser({ id: req.user.id });
     
-    res.json({
+    const config = {
         general_min: user.general_min || 0,
         include_config: user.include_config || {},
         exclude_config: user.exclude_config || {},
         // Legacy support
         include_list: user.include_list || [],
         exclude_list: user.exclude_list || []
-    });
+    };
+    
+    const includeCount = Object.keys(config.include_config).length;
+    const excludeCount = Object.keys(config.exclude_config).length;
+    console.log(`[Config] GET ${req.user.username}: min=${config.general_min}, ${includeCount} includes, ${excludeCount} excludes`);
+    
+    res.json(config);
 });
 
 // Save user config
